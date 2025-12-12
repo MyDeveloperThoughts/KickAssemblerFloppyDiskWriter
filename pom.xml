@@ -21,7 +21,7 @@
             <artifactId>KickAssembler</artifactId>
             <version>5.25</version>
             <scope>system</scope>
-            <systemPath>c:/project/KickAssPlugins/KickAssembler/KickAss.jar</systemPath>
+            <systemPath>c:/project/KickAssemblerFloppyDiskWriter/KickAssembler/KickAss.jar</systemPath>
         </dependency>
     </dependencies>
 
