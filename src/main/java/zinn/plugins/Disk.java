@@ -1,5 +1,7 @@
 package zinn.plugins;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 public final class Disk
@@ -25,6 +27,7 @@ public final class Disk
 
     public void formatDisk1541()
     {
+        // https://vice-emu.sourceforge.io/vice_17.html#SEC410
         // 1541 - Prepare a BAM (Block Allocation Map) on Track 18 Sector 0
         // Lookup the offset into the byte array for Track 18 Sector 0
         // Bytes 0 - 3 is the BAM Header
@@ -57,7 +60,44 @@ public final class Disk
         // Let's mark Track 18 Sector 0 used
         markTrackSector1541(18,0,true);     // The BAM
         markTrackSector1541(18,1,true);     // The Disk Directory Sector
+
+        // Write out the disk name and id
+        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString(name, 16), diskOffset);     // Disk Name
+        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 2),    diskOffset);     // 2 bytes $A0
+        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString(id, 2),    diskOffset);     // 2 byte disk ID
+        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 1),    diskOffset);     // Single byte $A0
+        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("2A", 2),  diskOffset);     // $2A (Dos Type)
+        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 4),    diskOffset);     // 4 bytes $A0
+        diskOffset = copyIntoRawBytes(createBytesOfChar((byte) 0,  85),       diskOffset);     // 55 bull bytes to fill out the sector
+
+        // diskOffset is now at the start of Track 18 Sector 1 - The directory track
+        rawBytes[diskOffset] = (byte) 0;                // Next Track is 0 (There is no more data)
+        rawBytes[diskOffset + 1] = (byte) 255;          // Next Sector is 255 (Means entire sector is allocated)
     }
+
+    public int copyIntoRawBytes(byte[] bytesToMerge, int offset)
+    {
+        for(int n=0; n<bytesToMerge.length; n++)
+            rawBytes[offset+n] = bytesToMerge[n];
+        return offset + bytesToMerge.length;
+    }
+
+    public byte[] createShiftSpacePaddedString(String value, int maxLength)
+    {
+        if (value.length()>maxLength)
+            value = value.substring(0,maxLength);
+        return String.format("%-" + maxLength + "s",value)
+                .replace(' ', (char) 160)                       // Pad with shift space ($A0 160)
+                .getBytes(StandardCharsets.ISO_8859_1);
+    }
+
+    public byte[] createBytesOfChar(byte charToFill, int length)
+    {
+        byte[] bytes = new byte[length];
+        Arrays.fill(bytes, charToFill);
+        return bytes;
+    }
+
 
     public void markTrackSector1541(int track, int sector, boolean isUsed)
     {
@@ -139,5 +179,7 @@ public final class Disk
         DiskLogic.TrackInfo trackInfo = getTrackInfo(track);
         return trackInfo==null ? 0 : trackInfo.sectorCount();
     }
+
+
 
 }

@@ -15,11 +15,10 @@ public final class DiskLogic
 
     static Disk createUnformattedDisk(String name, String id, String fileName, String driveType)
     {
-        if (driveType.equals("1541")) return createUnformatted1541Disk(name, id, fileName);
         if (driveType.equals("1571")) return createUnformatted1571Disk(name, id, fileName);
         if (driveType.equals("1581")) return createUnformatted1581Disk(name, id, fileName);
 
-        return null;
+        return createUnformatted1541Disk(name, id, fileName);
     }
 
     private static Disk createUnformatted1541Disk(String name, String id, String fileName)

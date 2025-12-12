@@ -57,8 +57,6 @@ public class CBMDiskWriter implements IDiskWriter
         {
             engine.error(e.getMessage());
         }
-
-        engine.printNow("test");
     }
 
 

@@ -13,7 +13,7 @@ go:
 
 // .disk Consolez [name="plugin disk"]
 // .disk [filename="test.d64", name="", id="", showInfo=true]
-.disk zinn [filename="zinn.d64", name="", id="cz", driveType="1541"]
+.disk zinn [filename="zinn.d64", name="STUFF", id="CZ", driveType="1541"]
 {
          [name="TEST            ", type="prg",  segments="CODE" ]
 }
