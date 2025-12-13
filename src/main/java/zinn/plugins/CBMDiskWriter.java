@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * .disk [filename="something.d64" name="empty" id="cz" driveType="1541" (1541, 1571, 1581)
  */
-public class CBMDiskWriter implements IDiskWriter
+public final class CBMDiskWriter implements IDiskWriter
 {
     private static final List<String> possibleDriveTypes = List.of("1541", "1571", "1581");
     private final DiskWriterDefinition m_definition;
@@ -46,7 +46,7 @@ public class CBMDiskWriter implements IDiskWriter
         if (!possibleDriveTypes.contains(driveType))
             engine.error(String.format("%s is an invalid drive type.  Must be one of %s", driveType, possibleDriveTypes));
 
-        Disk disk = DiskLogic.createUnformattedDisk(name, id, fileName, driveType);
+        Disk disk = DiskImageLogic.createBareDiskImage(name, id, fileName, driveType);
         if (driveType.equals("1541")) disk.formatDisk1541();
         if (driveType.equals("1571")) disk.formatDisk1571();
 

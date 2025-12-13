@@ -18,7 +18,7 @@ go:
 //        [name="TEST            ", type="prg",  segments="CODE" ]
 //}
 
-.disk zinn [filename="test-1571.d64", name="STUFF", id="CZ", driveType="1571"]
+.disk zinn [filename="test-1571.d71", name="STUFF", id="CZ", driveType="1571"]
 {
         [name="TEST            ", type="prg",  segments="CODE" ]
 }

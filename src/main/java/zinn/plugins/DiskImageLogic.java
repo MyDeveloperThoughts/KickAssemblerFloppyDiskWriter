@@ -3,7 +3,7 @@ package zinn.plugins;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class DiskLogic
+public final class DiskImageLogic
 {
     public record TrackInfo(int trackNumber, int sectorCount, int offset, String offsetInHex)
     {
@@ -13,15 +13,15 @@ public final class DiskLogic
         }
     }
 
-    static Disk createUnformattedDisk(String name, String id, String fileName, String driveType)
+    static Disk createBareDiskImage(String name, String id, String fileName, String driveType)
     {
-        if (driveType.equals("1571")) return createUnformatted1571Disk(name, id, fileName);
-        if (driveType.equals("1581")) return createUnformatted1581Disk(name, id, fileName);
+        if (driveType.equals("1571")) return createBareDiskImage1571(name, id, fileName);
+        if (driveType.equals("1581")) return createBareDiskImage1581(name, id, fileName);
 
-        return createUnformatted1541Disk(name, id, fileName);
+        return createBareDiskImage1541(name, id, fileName);
     }
 
-    private static Disk createUnformatted1541Disk(String name, String id, String fileName)
+    static Disk createBareDiskImage1541(String name, String id, String fileName)
     {
         List<TrackInfo> tracks = new ArrayList<>(35);
         tracks.addAll(createTrackInfo(1, 17, 21, 0));
@@ -31,7 +31,7 @@ public final class DiskLogic
         return new Disk(fileName, name, id, "1541", List.copyOf(tracks));
     }
 
-    private static Disk createUnformatted1571Disk(String name, String id, String fileName)
+    static Disk createBareDiskImage1571(String name, String id, String fileName)
     {
         List<TrackInfo> tracks = new ArrayList<>(70);
         tracks.addAll(createTrackInfo(1, 17, 21, 0));
@@ -46,13 +46,13 @@ public final class DiskLogic
         return new Disk(fileName, name, id, "1571", List.copyOf(tracks));
     }
 
-    private static Disk createUnformatted1581Disk(String name, String id, String fileName)
+    static Disk createBareDiskImage1581(String name, String id, String fileName)
     {
         return new Disk(fileName, name, id, "1581",
                 List.copyOf( createTrackInfo(1, 80, 40, 0) ));
     }
 
-    private static List<TrackInfo> createTrackInfo(int startingTrackingNumber, int trackCount, int sectorsPerTrack, int startingOffset)
+    static List<TrackInfo> createTrackInfo(int startingTrackingNumber, int trackCount, int sectorsPerTrack, int startingOffset)
     {
         List<TrackInfo> tracks = new ArrayList<>(trackCount);
 

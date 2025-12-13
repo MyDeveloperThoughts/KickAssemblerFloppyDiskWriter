@@ -10,10 +10,10 @@ public final class Disk
     String name;
     String id;
     String driveType;
-    List<DiskLogic.TrackInfo> trackInfos;
+    List<DiskImageLogic.TrackInfo> trackInfos;
     byte[] rawBytes;
 
-    public Disk(String fileName, String name, String id, String driveType, List<DiskLogic.TrackInfo> trackInfos)
+    public Disk(String fileName, String name, String id, String driveType, List<DiskImageLogic.TrackInfo> trackInfos)
     {
         this.fileName = fileName;
         this.name = name;
@@ -28,8 +28,7 @@ public final class Disk
     public void formatDisk1541()
     {
         // https://vice-emu.sourceforge.io/vice_17.html#SEC410
-        // 1541 - Prepare a BAM (Block Allocation Map) on Track 18 Sector 0
-        // Lookup the offset into the byte array for Track 18 Sector 0
+        // 1541 - Prepare a BAM (Block Availability Map) on Track 18 Sector 0
         // Bytes 0 - 3 is the BAM Header
         int diskOffset = getOffsetForTrackSector(18,0);         // The BAM (Block Availability Map)
         rawBytes[diskOffset] =      (byte) 18;                  // First Directory entry is on Track 18
@@ -62,13 +61,13 @@ public final class Disk
         markTrackSector1541(18,1,true);     // The Disk Directory Sector
 
         // Write out the disk name and id
-        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString(name, 16), diskOffset);     // Disk Name
-        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 2),    diskOffset);     // 2 bytes $A0
-        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString(id, 2),    diskOffset);     // 2 byte disk ID
-        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 1),    diskOffset);     // Single byte $A0
-        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("2A", 2),  diskOffset);     // $2A (Dos Type)
-        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 4),    diskOffset);     // 4 bytes $A0
-        diskOffset = copyIntoRawBytes(createBytesOfChar((byte) 0,  85),       diskOffset);     // 85 bytes of 0 to fill out the sector
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString(name, 16), diskOffset);     // Disk Name
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("", 2),    diskOffset);     // 2 bytes $A0
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString(id, 2),    diskOffset);     // 2 byte disk ID
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("", 1),    diskOffset);     // Single byte $A0
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("2A", 2),  diskOffset);     // $2A (Dos Type)
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("", 4),    diskOffset);     // 4 bytes $A0
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createBytesOfChar((byte) 0,  85),       diskOffset);     // 85 bytes of 0 to fill out the sector
 
         // diskOffset is now at the start of Track 18 Sector 1 - The directory track
         rawBytes[diskOffset] = (byte) 0;                // Next Track is 0 (There is no more data)
@@ -78,11 +77,10 @@ public final class Disk
     public void formatDisk1571()
     {
         // https://vice-emu.sourceforge.io/vice_17.html#SEC416
-        // 1571 - Prepare 2 BAM (Block Allocation Map)
+        // 1571 - Prepare 2 BAM (Block Availability Map)
         //        First is just like the 1541 on Track 18 Sector 0
 
         // Prepare the 1541 like BAM at Track 18 Sector 0 (First 35 Tracks / Side 1 of the disk)
-        // Lookup the offset into the byte array for Track 18 Sector 0
         // Bytes 0 - 3 is the BAM Header
         int diskOffset = getOffsetForTrackSector(18,0);         // The BAM (Block Availability Map) 91392 / $16500
         rawBytes[diskOffset] =      (byte) 18;                  // First Directory entry is on Track 18
@@ -114,13 +112,13 @@ public final class Disk
         markTrackSector1571(18,1,true);     // The Disk Directory Sector
 
         // Write out the disk name and id
-        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString(name, 16), diskOffset);     // Disk Name
-        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 2),    diskOffset);     // 2 bytes $A0
-        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString(id, 2),    diskOffset);     // 2 byte disk ID
-        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 1),    diskOffset);     // Single byte $A0
-        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("2A", 2),  diskOffset);     // $2A (Dos Type)
-        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 4),    diskOffset);     // 4 bytes $A0
-        diskOffset = copyIntoRawBytes(createBytesOfChar((byte) 0,  50),       diskOffset);     // 50 bytes of 0
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString(name, 16), diskOffset);     // Disk Name
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("", 2),    diskOffset);     // 2 bytes $A0
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString(id, 2),    diskOffset);     // 2 byte disk ID
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("", 1),    diskOffset);     // Single byte $A0
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("2A", 2),  diskOffset);     // $2A (Dos Type)
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("", 4),    diskOffset);     // 4 bytes $A0
+        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createBytesOfChar((byte) 0,  50),       diskOffset);     // 50 bytes of 0
 
         // Write out the count of free sectors for tracks 35-70  (The other 3 bytes for the bitmap of availability appear on track 53 sector 0)
         for(int track=36; track<=70; track++)
@@ -148,33 +146,12 @@ public final class Disk
         }
 
         // // The 1571 BAM for Side 2 - Mark all of track 53 as used
-        DiskLogic.TrackInfo track53 = getTrackInfo(53);
+        DiskImageLogic.TrackInfo track53 = getTrackInfo(53);
         for(int n=0; n<track53.sectorCount(); n++)
             markTrackSector1571(53,n,true);
     }
 
-    public int copyIntoRawBytes(byte[] bytesToMerge, int offset)
-    {
-        for(int n=0; n<bytesToMerge.length; n++)
-            rawBytes[offset+n] = bytesToMerge[n];
-        return offset + bytesToMerge.length;
-    }
 
-    public byte[] createShiftSpacePaddedString(String value, int maxLength)
-    {
-        if (value.length()>maxLength)
-            value = value.substring(0,maxLength);
-        return String.format("%-" + maxLength + "s",value)
-                .replace(' ', (char) 160)                       // Pad with shift space ($A0 160)
-                .getBytes(StandardCharsets.ISO_8859_1);
-    }
-
-    public byte[] createBytesOfChar(byte charToFill, int length)
-    {
-        byte[] bytes = new byte[length];
-        Arrays.fill(bytes, charToFill);
-        return bytes;
-    }
 
 
     public void markTrackSector1541(int track, int sector, boolean isUsed)
@@ -301,20 +278,20 @@ public final class Disk
         return new BAMEntry((byte) countOFSectorsInTrack, (byte) byte1, (byte) byte2, (byte) byte3);
     }
 
-    public DiskLogic.TrackInfo getTrackInfo(int track)
+    public DiskImageLogic.TrackInfo getTrackInfo(int track)
     {
         return trackInfos.stream().filter(info -> info.trackNumber()==track).findFirst().orElse(null);
     }
 
     public int getOffsetForTrackSector(int track, int sector)
     {
-        DiskLogic.TrackInfo trackInfo = getTrackInfo(track);
+        DiskImageLogic.TrackInfo trackInfo = getTrackInfo(track);
         return trackInfo==null ? 0 : trackInfo.offset() + (256 * sector);
     }
 
     public int getCountOfSectorsInTrack(int track)
     {
-        DiskLogic.TrackInfo trackInfo = getTrackInfo(track);
+        DiskImageLogic.TrackInfo trackInfo = getTrackInfo(track);
         return trackInfo==null ? 0 : trackInfo.sectorCount();
     }
 
