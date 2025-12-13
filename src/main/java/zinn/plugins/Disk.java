@@ -47,7 +47,7 @@ public final class Disk
         // Byte 3: $1F    00011111     Sector 23 22 21 20 19 18 17 16    (1=Available, 0=Used ) (Never more than 21 sectors on a track)
         for(int track=1; track<=35; track++)
         {
-            BAMEntry n = createNewBAMEntry1541(getCountOfSectorsInTrack(track));
+            BAMEntry n = createNewBAMEntry(getCountOfSectorsInTrack(track));
 
             rawBytes[diskOffset]     = n.countOFSectorsInTrack;
             rawBytes[diskOffset + 1] = n.byte1;
@@ -68,11 +68,89 @@ public final class Disk
         diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 1),    diskOffset);     // Single byte $A0
         diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("2A", 2),  diskOffset);     // $2A (Dos Type)
         diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 4),    diskOffset);     // 4 bytes $A0
-        diskOffset = copyIntoRawBytes(createBytesOfChar((byte) 0,  85),       diskOffset);     // 55 bull bytes to fill out the sector
+        diskOffset = copyIntoRawBytes(createBytesOfChar((byte) 0,  85),       diskOffset);     // 85 bytes of 0 to fill out the sector
 
         // diskOffset is now at the start of Track 18 Sector 1 - The directory track
         rawBytes[diskOffset] = (byte) 0;                // Next Track is 0 (There is no more data)
         rawBytes[diskOffset + 1] = (byte) 255;          // Next Sector is 255 (Means entire sector is allocated)
+    }
+
+    public void formatDisk1571()
+    {
+        // https://vice-emu.sourceforge.io/vice_17.html#SEC416
+        // 1571 - Prepare 2 BAM (Block Allocation Map)
+        //        First is just like the 1541 on Track 18 Sector 0
+
+        // Prepare the 1541 like BAM at Track 18 Sector 0 (First 35 Tracks / Side 1 of the disk)
+        // Lookup the offset into the byte array for Track 18 Sector 0
+        // Bytes 0 - 3 is the BAM Header
+        int diskOffset = getOffsetForTrackSector(18,0);         // The BAM (Block Availability Map) 91392 / $16500
+        rawBytes[diskOffset] =      (byte) 18;                  // First Directory entry is on Track 18
+        rawBytes[diskOffset+1] =    (byte) 1;                   //                             Sector 1
+        rawBytes[diskOffset+2] =    (byte) 65;                  // ASCII A (4040 Format)
+        rawBytes[diskOffset+3] =    (byte) 128;                 // Always $80 / 128 / 10000000 - Double Sided Disk flag
+        diskOffset+=4;
+
+        // Bytes 4 to 143 is the bitmap of blocks available for tracks 1 - 35
+        // 4 bytes per track. For each track, these bytes look like this:
+        // Byte 1: $15 / 21      Count of free sectors on the track
+        // Byte 2: $FF    11111111     Sector  7  6  5  4  3  2  1  0    (1=Available, 0=Used)
+        // Byte 2: $FF    11111111     Sector 15 14 13 12 11 10  9  8    (1=Available, 0=Used )
+        // Byte 3: $1F    00011111     Sector 23 22 21 20 19 18 17 16    (1=Available, 0=Used ) (Never more than 21 sectors on a track)
+        for(int track=1; track<=35; track++)
+        {
+            BAMEntry n = createNewBAMEntry(getCountOfSectorsInTrack(track));
+
+            rawBytes[diskOffset]     = n.countOFSectorsInTrack;
+            rawBytes[diskOffset + 1] = n.byte1;
+            rawBytes[diskOffset + 2] = n.byte2;
+            rawBytes[diskOffset + 3] = n.byte3;
+
+            diskOffset+=4;
+        }
+
+        // Let's mark Track 18 Sector 0 used
+        markTrackSector1571(18,0,true);     // The BAM
+        markTrackSector1571(18,1,true);     // The Disk Directory Sector
+
+        // Write out the disk name and id
+        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString(name, 16), diskOffset);     // Disk Name
+        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 2),    diskOffset);     // 2 bytes $A0
+        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString(id, 2),    diskOffset);     // 2 byte disk ID
+        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 1),    diskOffset);     // Single byte $A0
+        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("2A", 2),  diskOffset);     // $2A (Dos Type)
+        diskOffset = copyIntoRawBytes(createShiftSpacePaddedString("", 4),    diskOffset);     // 4 bytes $A0
+        diskOffset = copyIntoRawBytes(createBytesOfChar((byte) 0,  50),       diskOffset);     // 50 bytes of 0
+
+        // Write out the count of free sectors for tracks 35-70  (The other 3 bytes for the bitmap of availability appear on track 53 sector 0)
+        for(int track=36; track<=70; track++)
+        {
+            rawBytes[diskOffset] = (byte) getCountOfSectorsInTrack(track);
+            diskOffset++;
+        }
+
+        // diskOffset is now at the start of Track 18 Sector 1 - The directory track
+        rawBytes[diskOffset] = (byte) 0;                // Next Track is 0 (There is no more data)
+        rawBytes[diskOffset + 1] = (byte) 255;          // Next Sector is 255 (Means entire sector is allocated)
+
+        // Write out the BAM bitmap entries for tracks 36-75 (3 bytes per entry)
+        // These will appear on Track 53, Sector 0.
+        diskOffset = getOffsetForTrackSector(53,0);     // 266240  $41000
+        for(int track=36; track<=70; track++)
+        {
+            BAMEntry n = createNewBAMEntry(getCountOfSectorsInTrack(track));
+
+            rawBytes[diskOffset] = n.byte1;
+            rawBytes[diskOffset + 1] = n.byte2;
+            rawBytes[diskOffset + 2] = n.byte3;
+
+            diskOffset+=3;
+        }
+
+        // // The 1571 BAM for Side 2 - Mark all of track 53 as used
+        DiskLogic.TrackInfo track53 = getTrackInfo(53);
+        for(int n=0; n<track53.sectorCount(); n++)
+            markTrackSector1571(53,n,true);
     }
 
     public int copyIntoRawBytes(byte[] bytesToMerge, int offset)
@@ -145,12 +223,72 @@ public final class Disk
             if ((sectorByte & 0b10000000) != 0)  countOfAvail++;
         }
         rawBytes[testOffset + ((track - 1 ) * 4)] = (byte) countOfAvail;
+    }
 
+    public void markTrackSector1571(int track, int sector, boolean isUsed)
+    {
+        // If the track and sector are on side 1, mark the sector using the 1541 logic
+        if (track<=35)
+        {
+            markTrackSector1541(track, sector, isUsed);
+            return;
+        }
+
+        // Track 53 - Sector 0 is at 266240 / $41000  Target = 266291
+        int bamBitmapOffset = getOffsetForTrackSector(53,0); // 266240 / $41000
+        int sectorOffset = 2;                   // sector 16-23 is in offset 2
+        if (sector <=15) sectorOffset = 1;      // sector 8-15 is in offset 1
+        if (sector <=7)  sectorOffset = 0;      // sector 0-7 is in offset 0
+
+        track -= 35;
+        bamBitmapOffset = bamBitmapOffset + ((track - 1 ) * 3) + sectorOffset;
+
+        byte existingByte = rawBytes[bamBitmapOffset];
+        byte maskingBit = 0b00000000;
+
+        // This is a bit goofy, but this will work for now.
+        if (sector == 0 || sector == 8  || sector == 16)   maskingBit =        0b00000001;
+        if (sector == 1 || sector == 9  || sector == 17)   maskingBit =        0b00000010;
+        if (sector == 2 || sector == 10 || sector == 18)   maskingBit =        0b00000100;
+        if (sector == 3 || sector == 11 || sector == 19)   maskingBit =        0b00001000;
+        if (sector == 4 || sector == 12 || sector == 20)   maskingBit =        0b00010000;
+        if (sector == 5 || sector == 13 || sector == 21)   maskingBit =        0b00100000;
+        if (sector == 6 || sector == 14 || sector == 22)   maskingBit =        0b01000000;
+        if (sector == 7 || sector == 15 || sector == 23)   maskingBit = (byte) 0b10000000;
+
+        if (isUsed) // Force that bit to 0
+        {
+            maskingBit = (byte) (maskingBit ^ (byte) 255);
+            rawBytes[bamBitmapOffset] = (byte) (existingByte & maskingBit);
+        }
+        if (!isUsed)  // Force the bit to 1
+            rawBytes[bamBitmapOffset] = (byte) (existingByte | maskingBit);
+
+        // Need to count how many sectors in the track are available (How many bits are set)
+        int countOfAvail = 0;
+        bamBitmapOffset = getOffsetForTrackSector(53,0);
+        bamBitmapOffset = bamBitmapOffset + ((track - 1 ) * 3);
+        for(int n=0; n<3; n++)
+        {
+            int sectorByteLocation = bamBitmapOffset + n;
+            byte sectorByte = rawBytes[sectorByteLocation];
+            if ((sectorByte & 0b00000001) != 0)  countOfAvail++;
+            if ((sectorByte & 0b00000010) != 0)  countOfAvail++;
+            if ((sectorByte & 0b00000100) != 0)  countOfAvail++;
+            if ((sectorByte & 0b00001000) != 0)  countOfAvail++;
+            if ((sectorByte & 0b00010000) != 0)  countOfAvail++;
+            if ((sectorByte & 0b00100000) != 0)  countOfAvail++;
+            if ((sectorByte & 0b01000000) != 0)  countOfAvail++;
+            if ((sectorByte & 0b10000000) != 0)  countOfAvail++;
+        }
+
+        int highTrackSectorCountIndex = getOffsetForTrackSector(18,0) + 221 + (track -1);
+        rawBytes[highTrackSectorCountIndex] = (byte) countOfAvail;
 
     }
 
     record BAMEntry(byte countOFSectorsInTrack, byte byte1, byte byte2, byte byte3) {}
-    private BAMEntry createNewBAMEntry1541(int countOFSectorsInTrack)
+    private BAMEntry createNewBAMEntry(int countOFSectorsInTrack)
     {
         int byte1  = 255;
         int byte2  = 255;
