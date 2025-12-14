@@ -46,10 +46,8 @@ public final class CBMDiskWriter implements IDiskWriter
         if (!possibleDriveTypes.contains(driveType))
             engine.error(String.format("%s is an invalid drive type.  Must be one of %s", driveType, possibleDriveTypes));
 
-        Disk disk = DiskImageLogic.createBareDiskImage(name, id, fileName, driveType);
-        if (driveType.equals("1541")) disk.formatDisk1541();
-        if (driveType.equals("1571")) disk.formatDisk1571();
-        if (driveType.equals("1581")) disk.formatDisk1581();
+        AbstractDisk disk = AbstractDisk.createDisk(fileName, name, id, driveType);
+        disk.formatDisk();
 
         try(OutputStream output = engine.openOutputStream(fileName))
         {
