@@ -34,7 +34,7 @@ public final class Disk1541 extends AbstractDisk
         // 1541 - Prepare a BAM (Block Availability Map) on Track 18 Sector 0
         // Bytes 0 - 3 is the BAM Header
         int diskOffset = getOffsetForTrackSector(18,0);         // The BAM (Block Availability Map)
-        rawBytes[diskOffset++] =      (byte) 18;                  // First Directory entry is on Track 18
+        rawBytes[diskOffset++] =    (byte) 18;                  // First Directory entry is on Track 18
         rawBytes[diskOffset++] =    (byte) 1;                   //                             Sector 1
         rawBytes[diskOffset++] =    (byte) 65;                  // ASCII A (4040 Format)
         rawBytes[diskOffset++] =    0;                          // Always 0
@@ -91,17 +91,7 @@ public final class Disk1541 extends AbstractDisk
         int bamIndex = sectorCountIndex + 1;
 
         byte existingByte = disk.rawBytes[bamIndex];
-        byte maskingBit = 0b00000000;
-
-        // This is a bit goofy, but this will work for now.
-        if (sector == 0 || sector == 8  || sector == 16)   maskingBit =        0b00000001;
-        if (sector == 1 || sector == 9  || sector == 17)   maskingBit =        0b00000010;
-        if (sector == 2 || sector == 10 || sector == 18)   maskingBit =        0b00000100;
-        if (sector == 3 || sector == 11 || sector == 19)   maskingBit =        0b00001000;
-        if (sector == 4 || sector == 12 || sector == 20)   maskingBit =        0b00010000;
-        if (sector == 5 || sector == 13 || sector == 21)   maskingBit =        0b00100000;
-        if (sector == 6 || sector == 14 || sector == 22)   maskingBit =        0b01000000;
-        if (sector == 7 || sector == 15 || sector == 23)   maskingBit = (byte) 0b10000000;
+        byte maskingBit = ByteLogic.getSectorBAMMaskingBit(sector);
 
         if (isUsed) // Force that bit to 0
         {
@@ -116,15 +106,24 @@ public final class Disk1541 extends AbstractDisk
         for(int n=0; n<3; n++)
         {
             byte sectorByte = disk.rawBytes[testOffset + ((track - 1 ) * 4) + 1 + n];
-            if ((sectorByte & 0b00000001) != 0)  countOfAvail++;
-            if ((sectorByte & 0b00000010) != 0)  countOfAvail++;
-            if ((sectorByte & 0b00000100) != 0)  countOfAvail++;
-            if ((sectorByte & 0b00001000) != 0)  countOfAvail++;
-            if ((sectorByte & 0b00010000) != 0)  countOfAvail++;
-            if ((sectorByte & 0b00100000) != 0)  countOfAvail++;
-            if ((sectorByte & 0b01000000) != 0)  countOfAvail++;
-            if ((sectorByte & 0b10000000) != 0)  countOfAvail++;
+            countOfAvail += getCountOfSectorsAvailableInBAMByte(sectorByte);
+
         }
         disk.rawBytes[testOffset + ((track - 1 ) * 4)] = (byte) countOfAvail;
+    }
+
+    static int getCountOfSectorsAvailableInBAMByte(byte bamByte)
+    {
+        int countAvailable = 0;
+        if ((bamByte & 0b00000001) != 0)  countAvailable++;
+        if ((bamByte & 0b00000010) != 0)  countAvailable++;
+        if ((bamByte & 0b00000100) != 0)  countAvailable++;
+        if ((bamByte & 0b00001000) != 0)  countAvailable++;
+        if ((bamByte & 0b00010000) != 0)  countAvailable++;
+        if ((bamByte & 0b00100000) != 0)  countAvailable++;
+        if ((bamByte & 0b01000000) != 0)  countAvailable++;
+        if ((bamByte & 0b10000000) != 0)  countAvailable++;
+
+        return countAvailable;
     }
 }
