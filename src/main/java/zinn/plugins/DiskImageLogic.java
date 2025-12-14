@@ -28,7 +28,7 @@ public final class DiskImageLogic
         tracks.addAll(createTrackInfo(18, 7, 19, tracks.getLast().getNextOffset()));
         tracks.addAll(createTrackInfo(25, 6, 18, tracks.getLast().getNextOffset()));
         tracks.addAll(createTrackInfo(31, 5, 17, tracks.getLast().getNextOffset()));
-        return new Disk(fileName, name, id, "1541", List.copyOf(tracks));
+        return new Disk(fileName, name, id, "1541", List.copyOf(tracks), 144);
     }
 
     static Disk createBareDiskImage1571(String name, String id, String fileName)
@@ -43,13 +43,13 @@ public final class DiskImageLogic
         tracks.addAll(createTrackInfo(60, 6, 18, tracks.getLast().getNextOffset()));
         tracks.addAll(createTrackInfo(66, 5, 17, tracks.getLast().getNextOffset()));
 
-        return new Disk(fileName, name, id, "1571", List.copyOf(tracks));
+        return new Disk(fileName, name, id, "1571", List.copyOf(tracks), 144);
     }
 
     static Disk createBareDiskImage1581(String name, String id, String fileName)
     {
         return new Disk(fileName, name, id, "1581",
-                List.copyOf( createTrackInfo(1, 80, 40, 0) ));
+                List.copyOf( createTrackInfo(1, 80, 40, 0) ), 296);
     }
 
     static List<TrackInfo> createTrackInfo(int startingTrackingNumber, int trackCount, int sectorsPerTrack, int startingOffset)

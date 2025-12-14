@@ -49,6 +49,7 @@ public final class CBMDiskWriter implements IDiskWriter
         Disk disk = DiskImageLogic.createBareDiskImage(name, id, fileName, driveType);
         if (driveType.equals("1541")) disk.formatDisk1541();
         if (driveType.equals("1571")) disk.formatDisk1571();
+        if (driveType.equals("1581")) disk.formatDisk1581();
 
         try(OutputStream output = engine.openOutputStream(fileName))
         {
