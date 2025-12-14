@@ -36,11 +36,10 @@ public final class Disk
         // 1541 - Prepare a BAM (Block Availability Map) on Track 18 Sector 0
         // Bytes 0 - 3 is the BAM Header
         int diskOffset = getOffsetForTrackSector(18,0);         // The BAM (Block Availability Map)
-        rawBytes[diskOffset] =      (byte) 18;                  // First Directory entry is on Track 18
-        rawBytes[diskOffset+1] =    (byte) 1;                   //                             Sector 1
-        rawBytes[diskOffset+2] =    (byte) 65;                  // ASCII A (4040 Format)
-        rawBytes[diskOffset+3] =    0;                          // Always 0
-        diskOffset+=4;
+        rawBytes[diskOffset++] =      (byte) 18;                  // First Directory entry is on Track 18
+        rawBytes[diskOffset++] =    (byte) 1;                   //                             Sector 1
+        rawBytes[diskOffset++] =    (byte) 65;                  // ASCII A (4040 Format)
+        rawBytes[diskOffset++] =    0;                          // Always 0
 
         // This is the 1541 BAM
         // Bytes 4 to 143 is the bitmap of blocks available for tracks 1 - 35
@@ -53,12 +52,10 @@ public final class Disk
         {
             BAMEntry n = createNewBAMEntry(getCountOfSectorsInTrack(track));
 
-            rawBytes[diskOffset]     = n.countOFSectorsInTrack;
-            rawBytes[diskOffset + 1] = n.byte1;
-            rawBytes[diskOffset + 2] = n.byte2;
-            rawBytes[diskOffset + 3] = n.byte3;
-
-            diskOffset+=4;
+            rawBytes[diskOffset++] = n.countOFSectorsInTrack;
+            rawBytes[diskOffset++] = n.byte1;
+            rawBytes[diskOffset++] = n.byte2;
+            rawBytes[diskOffset++] = n.byte3;
         }
 
         // Let's mark Track 18 Sector 0 used
@@ -75,8 +72,8 @@ public final class Disk
         diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createBytesOfChar((byte) 0,  85),       diskOffset);     // 85 bytes of 0 to fill out the sector
 
         // diskOffset is now at the start of Track 18 Sector 1 - The directory track
-        rawBytes[diskOffset] = (byte) 0;                // Next Track is 0 (There is no more data)
-        rawBytes[diskOffset + 1] = (byte) 255;          // Next Sector is 255 (Means entire sector is allocated)
+        rawBytes[diskOffset++] = (byte) 0;          // Next Track is 0 (There is no more data)
+        rawBytes[diskOffset] = (byte) 255;          // Next Sector is 255 (Means entire sector is allocated)
     }
 
     public void formatDisk1571()
@@ -88,11 +85,10 @@ public final class Disk
         // Prepare the 1541 like BAM at Track 18 Sector 0 (First 35 Tracks / Side 1 of the disk)
         // Bytes 0 - 3 is the BAM Header
         int diskOffset = getOffsetForTrackSector(18,0);         // The BAM (Block Availability Map) 91392 / $16500
-        rawBytes[diskOffset] =      (byte) 18;                  // First Directory entry is on Track 18
-        rawBytes[diskOffset+1] =    (byte) 1;                   //                             Sector 1
-        rawBytes[diskOffset+2] =    (byte) 65;                  // ASCII A (4040 Format)
-        rawBytes[diskOffset+3] =    (byte) 128;                 // Always $80 / 128 / 10000000 - Double Sided Disk flag
-        diskOffset+=4;
+        rawBytes[diskOffset++] =    (byte) 18;                  // First Directory entry is on Track 18
+        rawBytes[diskOffset++] =    (byte) 1;                   //                             Sector 1
+        rawBytes[diskOffset++] =    (byte) 65;                  // ASCII A (4040 Format)
+        rawBytes[diskOffset++] =    (byte) 128;                 // Always $80 / 128 / 10000000 - Double Sided Disk flag
 
         // Bytes 4 to 143 is the bitmap of blocks available for tracks 1 - 35
         // 4 bytes per track. For each track, these bytes look like this:
@@ -104,12 +100,10 @@ public final class Disk
         {
             BAMEntry n = createNewBAMEntry(getCountOfSectorsInTrack(track));
 
-            rawBytes[diskOffset]     = n.countOFSectorsInTrack;
-            rawBytes[diskOffset + 1] = n.byte1;
-            rawBytes[diskOffset + 2] = n.byte2;
-            rawBytes[diskOffset + 3] = n.byte3;
-
-            diskOffset+=4;
+            rawBytes[diskOffset++] = n.countOFSectorsInTrack;
+            rawBytes[diskOffset++] = n.byte1;
+            rawBytes[diskOffset++] = n.byte2;
+            rawBytes[diskOffset++] = n.byte3;
         }
 
         // Let's mark Track 18 Sector 0 used
@@ -127,14 +121,11 @@ public final class Disk
 
         // Write out the count of free sectors for tracks 35-70  (The other 3 bytes for the bitmap of availability appear on track 53 sector 0)
         for(int track=36; track<=70; track++)
-        {
-            rawBytes[diskOffset] = (byte) getCountOfSectorsInTrack(track);
-            diskOffset++;
-        }
+            rawBytes[diskOffset++] = (byte) getCountOfSectorsInTrack(track);
 
         // diskOffset is now at the start of Track 18 Sector 1 - The directory track
-        rawBytes[diskOffset] = (byte) 0;                // Next Track is 0 (There is no more data)
-        rawBytes[diskOffset + 1] = (byte) 255;          // Next Sector is 255 (Means entire sector is allocated)
+        rawBytes[diskOffset++] = (byte) 0;                // Next Track is 0 (There is no more data)
+        rawBytes[diskOffset] =  (byte) 255;          // Next Sector is 255 (Means entire sector is allocated)
 
         // Write out the BAM bitmap entries for tracks 36-75 (3 bytes per entry)
         // These will appear on Track 53, Sector 0.
@@ -143,11 +134,9 @@ public final class Disk
         {
             BAMEntry n = createNewBAMEntry(getCountOfSectorsInTrack(track));
 
-            rawBytes[diskOffset] = n.byte1;
-            rawBytes[diskOffset + 1] = n.byte2;
-            rawBytes[diskOffset + 2] = n.byte3;
-
-            diskOffset+=3;
+            rawBytes[diskOffset++] = n.byte1;
+            rawBytes[diskOffset++] = n.byte2;
+            rawBytes[diskOffset++] = n.byte3;
         }
 
         // // The 1571 BAM for Side 2 - Mark all of track 53 as used
