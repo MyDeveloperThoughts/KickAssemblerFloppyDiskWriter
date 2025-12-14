@@ -24,6 +24,8 @@ public final class Disk1541 extends AbstractDisk
 
         int totalRawBytes = trackInfos.stream().mapToInt(info -> 256 * info.sectorCount()).reduce(0, Integer::sum);
         rawBytes = new byte[totalRawBytes];
+
+        int[] fileTrackCreationOrder = {17,19,16,20,15,21,14,22,13,23,12,24,11,25,10,26,9,27,8,28,7,29,6,30,5,31,4,32,3,33,2,34,1,35};
     }
 
     @Override

@@ -12,16 +12,20 @@ public class TestMain
     public static void main(String[] args) throws Exception
     {
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\1764demodisk.d64"));
-        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full-1541.d64"));
+//        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1571.d71"));
+//        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1541.d64"));
+        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1581.d81"));
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\test.d64"));
-        AbstractDisk disk = AbstractDisk.createDisk("test.d64", "stuff", "cz", "1541");
+        AbstractDisk disk = AbstractDisk.createDisk("test.d64", "stuff", "cz", "1581");
         disk.rawBytes = entireDisk;
         byte[] rawBytes = disk.rawBytes;
 
         List<DirectoryEntry> entries = new ArrayList<>();
 
-        int track = 18;
-        for (int sector = 1; sector<=18; sector++)
+        // 1571 and 1541 track=18 sectors 1 to 18
+        // 1581 track=40 sectors 3 to 39
+        int track = 40;
+        for (int sector = 3; sector<=39; sector++)
         {
             for (int entry=0; entry<8; entry++)
             {
@@ -54,7 +58,7 @@ public class TestMain
         }
 
 //        printInDiskOrder(entries);
-        printInDirectoryOrder(entries);
+        printInDirectoryOrder(entries, disk.maxDirectoryEntries);
     }
 
     record DirectoryEntry(int directoryTrack, int directorySector, int sectorEntryNumber,
@@ -89,7 +93,7 @@ public class TestMain
         }
     }
 
-    static void printInDirectoryOrder(List<DirectoryEntry> entries)
+    static void printInDirectoryOrder(List<DirectoryEntry> entries, int maxDirectoryEntries)
     {
         // Dump the records in Directory Order
         DirectoryEntry currentEntry = entries.getFirst();
@@ -135,7 +139,7 @@ public class TestMain
                 {
                     System.out.printf("\tSector Entry %d \t[%s]\t%3d blocks\tFile is at Track %d Sector %2d\n", currentEntry.sectorEntryNumber, currentEntry.fileName, currentEntry.blocksUsed, currentEntry.fileTrack, currentEntry.fileSector);
                     int indexOfThis = entries.indexOf(currentEntry);
-                    if (indexOfThis<143)
+                    if (indexOfThis<maxDirectoryEntries)        // 1581 make this
                         currentEntry = entries.get(indexOfThis + 1);
                 }
 
