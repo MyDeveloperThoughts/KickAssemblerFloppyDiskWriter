@@ -130,6 +130,15 @@ public class TestMain
                 }
             }
 
+            if (nextDirectoryTrack==0)
+                for(int n=sectorIndex; n<sectorIndex + 8; n++)
+                {
+                    System.out.printf("\tSector Entry %d \t[%s]\t%3d blocks\tFile is at Track %d Sector %2d\n", currentEntry.sectorEntryNumber, currentEntry.fileName, currentEntry.blocksUsed, currentEntry.fileTrack, currentEntry.fileSector);
+                    int indexOfThis = entries.indexOf(currentEntry);
+                    if (indexOfThis<143)
+                        currentEntry = entries.get(indexOfThis + 1);
+                }
+
         }
     }
 
