@@ -27,3 +27,7 @@ go:
 {
         [name="TEST            ", type="prg",  segments="CODE" ]
 }
+.disk [filename="test.d64", name="STUFF", id="CZ", showInfo=true]
+{
+
+}
