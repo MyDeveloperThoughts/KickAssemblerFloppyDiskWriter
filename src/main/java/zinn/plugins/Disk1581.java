@@ -11,7 +11,6 @@ public final class Disk1581 extends AbstractDisk
         this.fileName = fileName;
         this.name = name;
         this.id = id;
-        this.driveType = driveType;
         this.maxDirectoryEntries = 296;
         this.driveType = "1581";
         this.trackInfos = List.copyOf( createTrackInfo(1, 80, 40, 0) );
@@ -39,7 +38,7 @@ public final class Disk1581 extends AbstractDisk
         diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("", 1),    diskOffset);     // Single byte $A0
         diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("3D", 2),  diskOffset);     // 3D (Dos Type)
         diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("", 2),    diskOffset);     // 4 bytes $A0
-        diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createBytesOfChar((byte) 0,  227),      diskOffset);     // 227 bytes of 0 to fill out the sector
+                     ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createBytesOfChar((byte) 0,  227),      diskOffset);     // 227 bytes of 0 to fill out the sector
 
         for(int bamSector=1; bamSector<=2; bamSector++)   // 2 Tracks of this
         {
@@ -81,7 +80,7 @@ public final class Disk1581 extends AbstractDisk
 
         diskOffset = getOffsetForTrackSector(40, 3);        // The disk directory sector
         rawBytes[diskOffset++] = 0;             // No next track
-        rawBytes[diskOffset++] = (byte) 255;    // No next sector
+        rawBytes[diskOffset] = (byte) 255;    // No next sector
 
         // Let's mark Track 40 Sector 0 used
         markTrackSector(40,0,true);     // Disk Header

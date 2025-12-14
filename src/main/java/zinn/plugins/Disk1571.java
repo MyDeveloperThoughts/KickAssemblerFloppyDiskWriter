@@ -12,7 +12,6 @@ public final class Disk1571 extends  AbstractDisk
         this.fileName = fileName;
         this.name = name;
         this.id = id;
-        this.driveType = driveType;
         this.maxDirectoryEntries = 144;
         this.driveType = "1571";
 
