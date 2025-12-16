@@ -11,6 +11,9 @@ public abstract class Disk
     List<DiskImageLogic.TrackInfo> trackInfos;
     byte[] rawBytes;
     int    maxDirectoryEntries;
+    int    directoryTrack;
+    int    directoryStartSector;
+    int    directoryEndSector;
 
     public static Disk createFormattedDisk(String fileName, String name, String id, String driveType)
     {
@@ -21,6 +24,15 @@ public abstract class Disk
 
         disk.formatDisk();
         return disk;
+    }
+
+    public static Disk createFormattedDisk(String fileName, String name, String id)
+    {
+        String driveType = "1541";
+        if (fileName.toLowerCase().endsWith(".d71")) driveType = "1571";
+        if (fileName.toLowerCase().endsWith(".d81")) driveType = "1581";
+
+        return createFormattedDisk(fileName, name, id, driveType);
     }
 
     public abstract void formatDisk();

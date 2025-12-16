@@ -31,6 +31,9 @@ public final class Disk1571 extends Disk
 
         int[] fileTrackCreationOrder = {17,19,16,20,15,21,14,22,13,23,12,24,11,25,10,26,9,27,8,28,7,29,6,30,5,31,4,32,3,33,2,34,1,35,
                             36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70};
+        this.directoryTrack = 18;
+        this.directoryStartSector = 1;
+        this.directoryEndSector = 18;
     }
 
     @Override

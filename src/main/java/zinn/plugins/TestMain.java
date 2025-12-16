@@ -13,10 +13,12 @@ public class TestMain
     {
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\1764demodisk.d64"));
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1571.d71"));
+//        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full-1541.d64"));
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1541.d64"));
         byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1581.d81"));
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\test.d64"));
-        Disk disk = Disk.createFormattedDisk("test.d64", "stuff", "cz", "1581");
+
+        Disk disk = Disk.createFormattedDisk("test.d81", "stuff", "cz");
         disk.rawBytes = entireDisk;
         byte[] rawBytes = disk.rawBytes;
 
@@ -24,8 +26,8 @@ public class TestMain
 
         // 1571 and 1541 track=18 sectors 1 to 18
         // 1581 track=40 sectors 3 to 39
-        int track = 40;
-        for (int sector = 3; sector<=39; sector++)
+        int track = disk.directoryTrack;
+        for (int sector = disk.directoryStartSector; sector<=disk.directoryEndSector; sector++)
         {
             for (int entry=0; entry<8; entry++)
             {
@@ -51,7 +53,7 @@ public class TestMain
                 int blocksUsed = fileSizeLo + (fileSizeHi * 256);
 
                 DirectoryEntry n = new DirectoryEntry(track, sector, entry,
-                        nextDirectoryTrack, nextDirectorySector, fileType, fileTrack, fileSector, fileName,
+                        nextDirectoryTrack, nextDirectorySector, fileType, ByteLogic.convertFileTypeToString(fileType), fileTrack, fileSector, fileName,
                         relFileTrack, relFileSector, relRecordLength, blocksUsed);
                 entries.add(n);
             }
@@ -62,7 +64,7 @@ public class TestMain
     }
 
     record DirectoryEntry(int directoryTrack, int directorySector, int sectorEntryNumber,
-                          int nextDirectoryTrack, int nextDirectorySector, int FileType,
+                          int nextDirectoryTrack, int nextDirectorySector, int FileType, String fileTypeString,
                           int fileTrack, int fileSector, String fileName,
                           int relFileTrack, int relRecordLength, int relFileLength,
                           int blocksUsed) {}
@@ -105,7 +107,8 @@ public class TestMain
             // Display the entries in this sector
             for(int n=sectorIndex; n<sectorIndex + 8; n++)
             {
-                System.out.printf("\tSector Entry %d \t[%s]\t%3d blocks\tFile is at Track %d Sector %2d\n", currentEntry.sectorEntryNumber, currentEntry.fileName, currentEntry.blocksUsed, currentEntry.fileTrack, currentEntry.fileSector);
+                System.out.printf("\tSector Entry %d \t[%s][%4s]\t%3d blocks\tFile is at Track %d Sector %2d\n", currentEntry.sectorEntryNumber, currentEntry.fileName, currentEntry.fileTypeString,
+                        currentEntry.blocksUsed, currentEntry.fileTrack, currentEntry.fileSector);
                 if (n==0)
                 {
                     nextDirectoryTrack = currentEntry.nextDirectoryTrack;
@@ -137,9 +140,10 @@ public class TestMain
             if (nextDirectoryTrack==0)
                 for(int n=sectorIndex; n<sectorIndex + 8; n++)
                 {
-                    System.out.printf("\tSector Entry %d \t[%s]\t%3d blocks\tFile is at Track %d Sector %2d\n", currentEntry.sectorEntryNumber, currentEntry.fileName, currentEntry.blocksUsed, currentEntry.fileTrack, currentEntry.fileSector);
+                    System.out.printf("\tSector Entry %d \t[%s][%4s]\t%3d blocks\tFile is at Track %d Sector %2d\n", currentEntry.sectorEntryNumber, currentEntry.fileName, currentEntry.fileTypeString,
+                            currentEntry.blocksUsed, currentEntry.fileTrack, currentEntry.fileSector);
                     int indexOfThis = entries.indexOf(currentEntry);
-                    if (indexOfThis<maxDirectoryEntries)        // 1581 make this
+                    if (indexOfThis<maxDirectoryEntries - 1)
                         currentEntry = entries.get(indexOfThis + 1);
                 }
 
