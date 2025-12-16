@@ -4,7 +4,7 @@ import java.util.List;
 
 import static zinn.plugins.DiskImageLogic.createTrackInfo;
 
-public final class Disk1581 extends AbstractDisk
+public final class Disk1581 extends Disk
 {
     public Disk1581(String fileName, String name, String id)
     {

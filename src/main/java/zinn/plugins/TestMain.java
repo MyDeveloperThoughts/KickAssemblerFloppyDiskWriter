@@ -16,7 +16,7 @@ public class TestMain
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1541.d64"));
         byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1581.d81"));
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\test.d64"));
-        AbstractDisk disk = AbstractDisk.createDisk("test.d64", "stuff", "cz", "1581");
+        Disk disk = Disk.createFormattedDisk("test.d64", "stuff", "cz", "1581");
         disk.rawBytes = entireDisk;
         byte[] rawBytes = disk.rawBytes;
 

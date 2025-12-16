@@ -2,7 +2,7 @@ package zinn.plugins;
 
 import java.util.List;
 
-public abstract class AbstractDisk
+public abstract class Disk
 {
     String fileName;
     String name;
@@ -12,11 +12,15 @@ public abstract class AbstractDisk
     byte[] rawBytes;
     int    maxDirectoryEntries;
 
-    public static AbstractDisk createDisk(String fileName, String name, String id, String driveType)
+    public static Disk createFormattedDisk(String fileName, String name, String id, String driveType)
     {
-        if (driveType.equalsIgnoreCase("1571")) return new Disk1571(fileName, name, id);
-        if (driveType.equalsIgnoreCase("1581")) return new Disk1581(fileName, name, id);
-        return new Disk1541(fileName, name, id);
+        Disk disk = null;
+        if (driveType.equalsIgnoreCase("1571")) disk = new Disk1571(fileName, name, id);
+        if (driveType.equalsIgnoreCase("1581")) disk = new Disk1581(fileName, name, id);
+        if (disk==null)                         disk = new Disk1541(fileName, name, id);
+
+        disk.formatDisk();
+        return disk;
     }
 
     public abstract void formatDisk();

@@ -7,8 +7,6 @@ go:
      sta $d020
      rts
 
-
-
 // .disk [filename="test.d64", name="PLUGIN DISK", id="12", showInfo=true]
 
 // .disk Consolez [name="plugin disk"]
@@ -27,7 +25,7 @@ go:
 {
         [name="TEST            ", type="prg",  segments="CODE" ]
 }
-.disk [filename="test.d64", name="STUFF", id="CZ", showInfo=true]
-{
-
-}
+// .disk [filename="test.d64", name="STUFF", id="CZ", showInfo=true]
+//{
+//        [name="", type="prg",  segments="CODE" ]
+//}

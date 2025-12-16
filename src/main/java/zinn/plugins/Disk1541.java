@@ -5,7 +5,7 @@ import java.util.List;
 
 import static zinn.plugins.DiskImageLogic.createTrackInfo;
 
-public final class Disk1541 extends AbstractDisk
+public final class Disk1541 extends Disk
 {
     public Disk1541(String fileName, String name, String id)
     {
@@ -81,7 +81,7 @@ public final class Disk1541 extends AbstractDisk
         markTrackSector(track, sector, isUsed, this);
     }
 
-    public static void markTrackSector(int track, int sector, boolean isUsed, AbstractDisk disk)
+    public static void markTrackSector(int track, int sector, boolean isUsed, Disk disk)
     {
         int testOffset = disk.getOffsetForTrackSector(18,0) + 4;
 
