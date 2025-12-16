@@ -34,6 +34,17 @@
 // on the c64 - it died creating file 244 -> v
 // 243 max entries
 
+// One giant file to see how it allocates tracks and sectors
+
+10  b$ = ""
+20 for n=1to254:b$=b$+"z":next
+120 f$ = "file" + str$(n)
+130 print "writing ";f$;"..."
+140 open 1,8,6,f$ + ",s,w"
+150 for n=1 to 150:print#1,b$;:print n:next
+160 close 1
+
+
 
 // random notes
 // for directory entries.
