@@ -9,7 +9,7 @@ import java.util.List;
 
 public class TestMain
 {
-    public static void main(String[] args) throws Exception
+    static void main(String[] args) throws Exception
     {
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\1764demodisk.d64"));
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1571.d71"));
@@ -64,6 +64,7 @@ public class TestMain
 
 //        printInDiskOrder(entries);
         printInDirectoryOrder(entries, disk.maxDirectoryEntries);
+        followFileTrackSectorLinks(17, 1, disk);
     }
 
     record DirectoryEntry(int directoryTrack, int directorySector, int sectorEntryNumber,
@@ -137,6 +138,26 @@ public class TestMain
                     break;
             }
         }
+     }
+
+
+     static void followFileTrackSectorLinks(int startAtTrack, int startAtSector, Disk disk)
+     {
+         byte[] rawBytes = disk.rawBytes;
+         int offset = disk.getOffsetForTrackSector(startAtTrack, startAtSector);
+
+         System.out.println("Track " + startAtTrack + " Sector " + startAtSector);
+
+
+         int nextTrack = rawBytes[offset];
+         int nextSector = rawBytes[offset + 1];
+         while(nextTrack!=0)
+         {
+             nextTrack = rawBytes[offset];
+             nextSector = rawBytes[offset + 1];
+             offset = disk.getOffsetForTrackSector(nextTrack, nextSector);
+             System.out.println("Track " + nextTrack + " Sector " + nextSector);
+         }
      }
 
 

@@ -1,6 +1,7 @@
 package zinn.plugins;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static zinn.plugins.DiskImageLogic.createTrackInfo;
 
@@ -16,6 +17,7 @@ public final class Disk1581 extends Disk
         this.trackInfos = List.copyOf( createTrackInfo(1, 80, 40, 0) );
 
         int totalRawBytes = trackInfos.stream().mapToInt(info -> 256 * info.sectorCount()).reduce(0, Integer::sum);
+        trackInfosMap = trackInfos.stream().collect(Collectors.toMap(DiskImageLogic.TrackInfo::trackNumber, info -> info));
         rawBytes = new byte[totalRawBytes];
 
         int[] fileTrackCreationOrder = {39,41,38,42,37,43,36,44,35,45,34,46,33,47,32,48,31,49,30,50,29,51,28,52,27,53,
@@ -24,6 +26,8 @@ public final class Disk1581 extends Disk
         this.directoryTrack = 40;
         this.directoryStartSector = 3;
         this.directoryEndSector = 39;
+        this.fileSectorInterleave = 1;
+        this.directorySectorInterleave = 1;
     }
 
     @Override

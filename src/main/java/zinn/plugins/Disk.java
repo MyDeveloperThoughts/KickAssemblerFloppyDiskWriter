@@ -1,6 +1,7 @@
 package zinn.plugins;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class Disk
 {
@@ -9,11 +10,14 @@ public abstract class Disk
     String id;
     String driveType;
     List<DiskImageLogic.TrackInfo> trackInfos;
+    Map<Integer, DiskImageLogic.TrackInfo> trackInfosMap;
     byte[] rawBytes;
     int    maxDirectoryEntries;
     int    directoryTrack;
     int    directoryStartSector;
     int    directoryEndSector;
+    int    fileSectorInterleave;
+    int    directorySectorInterleave;
 
     public static Disk createFormattedDisk(String fileName, String name, String id, String driveType)
     {
@@ -54,7 +58,7 @@ public abstract class Disk
 
     public DiskImageLogic.TrackInfo getTrackInfo(int track)
     {
-        return trackInfos.stream().filter(info -> info.trackNumber()==track).findFirst().orElse(null);
+        return trackInfosMap.get(track);
     }
 
     public int getOffsetForTrackSector(int track, int sector)
@@ -67,6 +71,12 @@ public abstract class Disk
     {
         DiskImageLogic.TrackInfo trackInfo = getTrackInfo(track);
         return trackInfo==null ? 0 : trackInfo.sectorCount();
+    }
+
+    public int getNextSectorUsingInterleave(int track, int sector)
+    {
+        int numberOfSectorsInTrack = getCountOfSectorsInTrack(track);
+        return (sector + 10) % numberOfSectorsInTrack;
     }
 
 }
