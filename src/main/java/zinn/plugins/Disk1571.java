@@ -163,14 +163,13 @@ public final class Disk1571 extends Disk
             return  Disk1541.isTrackSectorAvailable(this, track, sector);
 
         // Track 53 - Sector 0 is at 266240 / $41000  Target = 266291
-        int testOffset = getOffsetForTrackSector(53,0) + 4;
+        int testOffset = getOffsetForTrackSector(53,0);
 
         track -=35;
         int sectorOffset = 2;                   // sector 16-23 is in offset 2
         if (sector <=15) sectorOffset = 1;      // sector 8-15 is in offset 1
         if (sector <=7)  sectorOffset = 0;      // sector 0-7 is in offset 0
-        int sectorCountIndex = testOffset + ((track - 1 ) * 4) + sectorOffset;
-        int bamIndex = sectorCountIndex + 1;
+        int bamIndex = testOffset + ((track - 1 ) * 3) + sectorOffset;
 
         byte existingByte = rawBytes[bamIndex];
         byte maskingBit = ByteLogic.getSectorBAMMaskingBit(sector);

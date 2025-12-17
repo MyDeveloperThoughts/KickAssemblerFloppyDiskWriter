@@ -49,6 +49,25 @@ go:
        [name="27", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
        [name="28", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
        [name="29", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
-       [name="30 ", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ]
-
+       [name="30 ", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="31", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="32", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="33", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="34", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="35", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="36", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="37", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="38", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="39", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="40 ", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="41", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="42", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="43", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="44", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="45", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="46", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="47", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="48", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="49", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],
+       [name="50 ", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ]
 }
