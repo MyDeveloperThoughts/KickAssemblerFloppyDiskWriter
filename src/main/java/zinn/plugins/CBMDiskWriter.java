@@ -9,6 +9,7 @@ import kickass.plugins.interf.general.IMemoryBlock;
 import kickass.plugins.interf.general.IParameterMap;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -72,9 +73,58 @@ public final class CBMDiskWriter implements IDiskWriter
                 engine.error(String.format("%s is an invalid file type.  Must be one of %s", fileType, possibleFileTypes));
 
             ByteLogic.BinaryFile binaryFile = ByteLogic.convertIMemoryBlocksToBinaryFile(memoryBlocks, storeStartAddress);
+            int sectorsNeeded = binaryFile.rawData().length / 254;  // 192 blocks
+            int bytesInLastSector = binaryFile.rawData().length - (254 * (binaryFile.rawData().length / 254));
+            if (bytesInLastSector > 0)
+                sectorsNeeded++;
 
+            // Decide where we are going to place the data, and mark the sectors used
+            List<Disk.TrackSector> trackSectors = new ArrayList<>(sectorsNeeded);
+            for (int n=0; n<sectorsNeeded;n++)
+            {
+                Disk.TrackSector storeAt = disk.findUnallocatedTrackSector();
+                disk.markTrackSector(storeAt.track(), storeAt.sector(), true);
+                trackSectors.add(storeAt);
+            }
 
-            // todo: Store the binary file in the filesystem
+            // Place the sectors on the disk with pointers to the next sector
+            int binaryFileOffset = 0;
+            for (int n=0; n<sectorsNeeded;n++)
+            {
+                Disk.TrackSector storeAt = trackSectors.get(n);
+
+                int diskOffset = disk.getOffsetForTrackSector(storeAt.track(), storeAt.sector());
+                if (n+1 == sectorsNeeded)       // This is the last sector
+                {
+                    disk.rawBytes[diskOffset++] = 0;
+                    disk.rawBytes[diskOffset++] = (byte) bytesInLastSector;
+                    for (int x=0;x<bytesInLastSector;x++)
+                        disk.rawBytes[diskOffset++] = binaryFile.rawData()[binaryFileOffset++];
+                }
+                else        // Point to the next track / sector
+                {
+                    Disk.TrackSector nextSector = trackSectors.get(n+1);
+                    disk.rawBytes[diskOffset++] = (byte) nextSector.track();
+                    disk.rawBytes[diskOffset++] = (byte) nextSector.sector();
+                    for (int x=0;x<254;x++)
+                        disk.rawBytes[diskOffset++] = binaryFile.rawData()[binaryFileOffset++];
+                }
+            }
+
+            // Create a directory entry
+            // To get started, we are just going to hard code it on 18 / 1
+            int directoryEntryOffset = disk.getOffsetForTrackSector(18, 1);
+            directoryEntryOffset+=2;  // Skip over the next directory track / sector
+            disk.rawBytes[directoryEntryOffset++] = (byte) 0b10000010;   // Hard coded for PRG for this text
+            disk.rawBytes[directoryEntryOffset++] = (byte) 17;  // Hard coded for Track 17 for now
+            disk.rawBytes[directoryEntryOffset++] = (byte) 0;   // Hard coded for Sector 0 for now
+            directoryEntryOffset = ByteLogic.copyIntoRawBytes(disk.rawBytes, ByteLogic.createShiftSpacePaddedString(fileName, 16), directoryEntryOffset);     // File Name
+            disk.rawBytes[directoryEntryOffset++] = (byte) 0;   // Rel File Track
+            disk.rawBytes[directoryEntryOffset++] = (byte) 0;   // Rel File Sector
+            disk.rawBytes[directoryEntryOffset++] = (byte) 0;   // Rel File Length
+            directoryEntryOffset+=6;                            // 6 Unused bytes
+            disk.rawBytes[directoryEntryOffset++] = (byte) (sectorsNeeded % 255);
+            disk.rawBytes[directoryEntryOffset] =   (byte) (sectorsNeeded / 256);
         }
 
         try(OutputStream output = engine.openOutputStream(diskFilename))
@@ -88,5 +138,4 @@ public final class CBMDiskWriter implements IDiskWriter
     }
 
     public record FileType(String fileTye, boolean isSoftwareLocked) {}
-
 }

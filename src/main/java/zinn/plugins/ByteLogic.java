@@ -68,7 +68,7 @@ public final class ByteLogic
         {
             byte[] temp = new byte[binaryToWrite.length + 2];
             ByteLogic.copyIntoRawBytes(temp, binaryToWrite, 2);
-            temp[0] = (byte) (lowestMemoryAddress & 256);
+            temp[0] = (byte) (lowestMemoryAddress & 255);
             temp[1] = (byte) (lowestMemoryAddress / 256);
             binaryToWrite = temp;
         }

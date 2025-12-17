@@ -31,7 +31,7 @@ public final class Disk1571 extends Disk
         trackInfosMap = trackInfos.stream().collect(Collectors.toMap(DiskImageLogic.TrackInfo::trackNumber, info -> info));
         rawBytes = new byte[totalRawBytes];
 
-        int[] fileTrackCreationOrder = {17,19,16,20,15,21,14,22,13,23,12,24,11,25,10,26,9,27,8,28,7,29,6,30,5,31,4,32,3,33,2,34,1,35,
+        trackCreationOrder = new int[] {17,19,16,20,15,21,14,22,13,23,12,24,11,25,10,26,9,27,8,28,7,29,6,30,5,31,4,32,3,33,2,34,1,35,
                             36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70};
         this.directoryTrack = 18;
         this.directoryStartSector = 1;
@@ -155,4 +155,26 @@ public final class Disk1571 extends Disk
         rawBytes[highTrackSectorCountIndex] = (byte) countOfAvail;
 
     }
+
+    @Override
+    public boolean isTrackSectorAvailable(int track, int sector)
+    {
+        if (track<=35)
+            return  Disk1541.isTrackSectorAvailable(this, track, sector);
+
+        // Track 53 - Sector 0 is at 266240 / $41000  Target = 266291
+        int bamBitmapOffset = getOffsetForTrackSector(53,0); // 266240 / $41000
+        int sectorOffset = 2;                   // sector 16-23 is in offset 2
+        if (sector <=15) sectorOffset = 1;      // sector 8-15 is in offset 1
+        if (sector <=7)  sectorOffset = 0;      // sector 0-7 is in offset 0
+
+        track -= 35;
+        bamBitmapOffset = bamBitmapOffset + ((track - 1 ) * 3) + sectorOffset;
+
+        byte existingByte = rawBytes[bamBitmapOffset];
+        byte maskingBit = ByteLogic.getSectorBAMMaskingBit(sector);
+
+        return (existingByte & maskingBit) != 0;
+    }
+
 }

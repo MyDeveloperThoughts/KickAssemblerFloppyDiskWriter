@@ -17,11 +17,13 @@ public class TestMain
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1541.d64"));
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1581.d81"));
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\test.d64"));
-        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\onebigfile-1541.d64"));
+        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\broadsides.d64"));
 
         Disk disk = Disk.createFormattedDisk("test.d64", "stuff", "cz");
         disk.rawBytes = entireDisk;
         byte[] rawBytes = disk.rawBytes;
+
+        int offsetTest = disk.getOffsetForTrackSector(17,0); // 86016 $15000
 
         List<DirectoryEntry> entries = new ArrayList<>();
 

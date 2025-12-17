@@ -20,7 +20,7 @@ public final class Disk1581 extends Disk
         trackInfosMap = trackInfos.stream().collect(Collectors.toMap(DiskImageLogic.TrackInfo::trackNumber, info -> info));
         rawBytes = new byte[totalRawBytes];
 
-        int[] fileTrackCreationOrder = {39,41,38,42,37,43,36,44,35,45,34,46,33,47,32,48,31,49,30,50,29,51,28,52,27,53,
+        trackCreationOrder = new int[] {39,41,38,42,37,43,36,44,35,45,34,46,33,47,32,48,31,49,30,50,29,51,28,52,27,53,
                                         26,54,25,55,24,56,23,57,22,58,21,59,20,60,19,61,18,62,17,63,16,64,15,65,14,66,
                                         13,67,12,68,11,69,10,70,9,71,8,72,7,73,6,74,5,75,4,76,3,77,2,78,1,79,80};
         this.directoryTrack = 40;
@@ -141,5 +141,26 @@ public final class Disk1581 extends Disk
             if ((sectorByte & 0b10000000) != 0)  countOfAvail++;
         }
         rawBytes[testOffset + ((track - 1 ) * 6)] = (byte) countOfAvail;
+    }
+
+    @Override
+    public boolean isTrackSectorAvailable(int track, int sector)
+    {
+        int testOffset = track <=40 ? getOffsetForTrackSector(40,1) : getOffsetForTrackSector(40,2);
+        testOffset+=16;     // Skip past the header stuff
+
+        int sectorOffset = 5;      // sector 32-40 is in offset 1
+        if (sector <=31) sectorOffset = 4;      // sector 24-31 is in offset 4
+        if (sector <=23) sectorOffset = 3;      // sector 16-23 is in offset 3
+        if (sector <=15) sectorOffset = 2;      // sector 8-15 is in offset 2
+        if (sector <=7)  sectorOffset = 1;      // sector 0-7 is in offset 0
+
+        int sectorCountIndex = testOffset + ((track - 1 ) * 6);
+        int bamIndex = sectorCountIndex + sectorOffset;
+
+        byte existingByte = rawBytes[bamIndex];
+        byte maskingBit = ByteLogic.getSectorBAMMaskingBit(sector);
+
+        return (existingByte & maskingBit) != 0;
     }
 }

@@ -18,6 +18,7 @@ public abstract class Disk
     int    directoryEndSector;
     int    fileSectorInterleave;
     int    directorySectorInterleave;
+    int[]  trackCreationOrder;
 
     public static Disk createFormattedDisk(String fileName, String name, String id, String driveType)
     {
@@ -41,6 +42,7 @@ public abstract class Disk
 
     public abstract void formatDisk();
     public abstract void markTrackSector(int track, int sector, boolean iUse);
+    public abstract boolean isTrackSectorAvailable(int track, int sector);
 
     record BAMEntry(byte countOFSectorsInTrack, byte byte1, byte byte2, byte byte3) {}
     BAMEntry createNewBAMEntry(int countOFSectorsInTrack)
@@ -77,6 +79,30 @@ public abstract class Disk
     {
         int numberOfSectorsInTrack = getCountOfSectorsInTrack(track);
         return (sector + 10) % numberOfSectorsInTrack;
+    }
+
+    public record TrackSector(int track, int sector) {}
+
+    // Returns null if there is nothing left on the disk
+    public TrackSector findUnallocatedTrackSector()
+    {
+        int sector = 0;
+
+        TrackSector availableTrackSector = null;
+        for(int track : trackCreationOrder)
+        {
+            int attemptsLeft = getCountOfSectorsInTrack(track) + 5;
+            while (attemptsLeft > 0)
+            {
+                if (isTrackSectorAvailable(track, sector))
+                    return new TrackSector(track, sector);
+
+                sector = getNextSectorUsingInterleave(track, sector);
+                attemptsLeft--;
+            }
+        }
+
+        return availableTrackSector;
     }
 
 }
