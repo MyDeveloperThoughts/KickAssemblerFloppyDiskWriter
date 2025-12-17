@@ -74,7 +74,7 @@ public final class CBMDiskWriter implements IDiskWriter
 
             ByteLogic.BinaryFile binaryFile = ByteLogic.convertIMemoryBlocksToBinaryFile(memoryBlocks, storeStartAddress);
             int sectorsNeeded = binaryFile.rawData().length / 254;  // 192 blocks
-            int bytesInLastSector = binaryFile.rawData().length - (254 * (binaryFile.rawData().length / 254));
+            int bytesInLastSector = (binaryFile.rawData().length - (254 * (binaryFile.rawData().length / 254)));
             if (bytesInLastSector > 0)
                 sectorsNeeded++;
 

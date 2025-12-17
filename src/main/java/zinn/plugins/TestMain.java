@@ -16,14 +16,16 @@ public class TestMain
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full-1541.d64"));
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1541.d64"));
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\full2-1581.d81"));
-//        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\test.d64"));
-        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\broadsides.d64"));
+        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\test.d64"));
+//        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\broadSides.d64"));
 
         Disk disk = Disk.createFormattedDisk("test.d64", "stuff", "cz");
         disk.rawBytes = entireDisk;
         byte[] rawBytes = disk.rawBytes;
 
-        int offsetTest = disk.getOffsetForTrackSector(17,0); // 86016 $15000
+        int offset = disk.getOffsetForTrackSector(8,20);        // End of it on the real disk  42752   A700
+        offset = disk.getOffsetForTrackSector(23,17);        // End of it on my disk 120064            1D500
+
 
         List<DirectoryEntry> entries = new ArrayList<>();
 
