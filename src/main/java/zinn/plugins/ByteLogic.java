@@ -51,6 +51,8 @@ public final class ByteLogic
     public record BinaryFile(Integer startingAddress, byte[] rawData) {}
     public static BinaryFile convertIMemoryBlocksToBinaryFile(List<IMemoryBlock> memoryBlocks, boolean storeStartAddress)
     {
+
+
         // Unpack the memory blocks into C64 Memory
         byte[] c64RAM = new byte[65535];
         for(IMemoryBlock memoryBlock : memoryBlocks)
@@ -62,6 +64,8 @@ public final class ByteLogic
         // Slice out the part we want to write to disk
         int lowestMemoryAddress = memoryBlocks.stream().mapToInt(IMemoryBlock::getStartAddress).min().orElse(0);
         int highestMemoryAddress = memoryBlocks.stream().mapToInt(i -> i.getStartAddress() + i.getBytes().length).max().orElse(0);
+        if (lowestMemoryAddress==0 && highestMemoryAddress==0) return null;     // There is no binary data.
+
         byte[] binaryToWrite = Arrays.copyOfRange(c64RAM, lowestMemoryAddress, highestMemoryAddress);
 
         if (storeStartAddress)

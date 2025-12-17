@@ -11,9 +11,12 @@ go:
 
 // .disk Consolez [name="plugin disk"]
 // .disk [filename="test.d64", name="", id="", showInfo=true]
-//         [name="TEST            ", type="prg",  segments="CODE" ]
+// {
+//         [name="----------------", type="rel" ]
+// }
 .disk zinn [filename="test.d64", name="STUFF", id="CZ", driveType="1541"]
 {
-        [name="BROADSIDES      ", type="prg<", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/broadsides.prg" ],
+       [name="----------------", type="rel" ],
+       [name="BROADSIDES      ", type="prg<", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/broadsides.prg" ],
+       [name="----------------", type="rel" ]
 }
-

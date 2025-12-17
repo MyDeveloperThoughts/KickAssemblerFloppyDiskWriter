@@ -84,9 +84,9 @@ public abstract class Disk
         return (sector + 10) % numberOfSectorsInTrack;
     }
 
-    public record TrackSector(int track, int sector) {}
 
     // Returns null if there is nothing left on the disk
+    public record TrackSector(int track, int sector) {}
     public TrackSector findUnallocatedTrackSector()
     {
         int sector = 0;
@@ -111,47 +111,54 @@ public abstract class Disk
     public void writeFileToDisk(List<IMemoryBlock> memoryBlocks, boolean storeStartAddress, String storeFilename, String fileType, boolean isSoftwareLocked)
     {
         ByteLogic.BinaryFile binaryFile = ByteLogic.convertIMemoryBlocksToBinaryFile(memoryBlocks, storeStartAddress);
-        int sectorsNeeded = binaryFile.rawData().length / 254;  // 192 blocks
-        int bytesInLastSector = (binaryFile.rawData().length - (254 * (binaryFile.rawData().length / 254)));
+        int sectorsNeeded = binaryFile == null ? 0 : binaryFile.rawData().length / 254;  // 192 blocks
+        int bytesInLastSector = binaryFile == null ? 0 : (binaryFile.rawData().length - (254 * (binaryFile.rawData().length / 254)));
         if (bytesInLastSector > 0)
             sectorsNeeded++;
 
         // Decide where we are going to place the data, and mark the sectors used
-        List<Disk.TrackSector> trackSectors = new ArrayList<>(sectorsNeeded);
-        for (int n=0; n<sectorsNeeded;n++)
+        if (binaryFile!=null)
         {
-            Disk.TrackSector storeAt = findUnallocatedTrackSector();
-            markTrackSector(storeAt.track(), storeAt.sector(), true);
-            trackSectors.add(storeAt);
+            List<Disk.TrackSector> trackSectors = new ArrayList<>(sectorsNeeded);
+            for (int n = 0; n < sectorsNeeded; n++)
+            {
+                Disk.TrackSector storeAt = findUnallocatedTrackSector();
+                markTrackSector(storeAt.track(), storeAt.sector(), true);
+                trackSectors.add(storeAt);
+            }
+
+            // Place the sectors on the disk with pointers to the next sector
+            int binaryFileOffset = 0;
+            for (int n = 0; n < sectorsNeeded; n++)
+            {
+                Disk.TrackSector storeAt = trackSectors.get(n);
+
+                int diskOffset = getOffsetForTrackSector(storeAt.track(), storeAt.sector());
+                if (n + 1 == sectorsNeeded)       // This is the last sector
+                {
+                    rawBytes[diskOffset++] = 0;
+                    rawBytes[diskOffset++] = (byte) bytesInLastSector;
+                    for (int x = 0; x < bytesInLastSector; x++)
+                        rawBytes[diskOffset++] = binaryFile.rawData()[binaryFileOffset++];
+                }
+                else        // Point to the next track / sector
+                {
+                    Disk.TrackSector nextSector = trackSectors.get(n + 1);
+                    rawBytes[diskOffset++] = (byte) nextSector.track();
+                    rawBytes[diskOffset++] = (byte) nextSector.sector();
+                    for (int x = 0; x < 254; x++)
+                        rawBytes[diskOffset++] = binaryFile.rawData()[binaryFileOffset++];
+                }
+            }
         }
 
-        // Place the sectors on the disk with pointers to the next sector
-        int binaryFileOffset = 0;
-        for (int n=0; n<sectorsNeeded;n++)
-        {
-            Disk.TrackSector storeAt = trackSectors.get(n);
-
-            int diskOffset = getOffsetForTrackSector(storeAt.track(), storeAt.sector());
-            if (n+1 == sectorsNeeded)       // This is the last sector
-            {
-                rawBytes[diskOffset++] = 0;
-                rawBytes[diskOffset++] = (byte) bytesInLastSector;
-                for (int x=0;x<bytesInLastSector;x++)
-                    rawBytes[diskOffset++] = binaryFile.rawData()[binaryFileOffset++];
-            }
-            else        // Point to the next track / sector
-            {
-                Disk.TrackSector nextSector = trackSectors.get(n+1);
-                rawBytes[diskOffset++] = (byte) nextSector.track();
-                rawBytes[diskOffset++] = (byte) nextSector.sector();
-                for (int x=0;x<254;x++)
-                    rawBytes[diskOffset++] = binaryFile.rawData()[binaryFileOffset++];
-            }
-        }
+        int entryIndexInThisSector = 0;   // We can only fit 8 directory entries in each sector
+        int entryTrack = directoryTrack;
+        int entrySector= directoryStartSector;
 
         // Create a directory entry
         // To get started, we are just going to hard code it on directoryTrack , and sector
-        int directoryEntryOffset = getOffsetForTrackSector(directoryTrack, directoryStartSector);
+        int directoryEntryOffset = getOffsetForTrackSector(entryTrack, entrySector);
         directoryEntryOffset+=2;  // Skip over the next directory track / sector
         rawBytes[directoryEntryOffset++] = ByteLogic.convertToFileTypeByte(fileType, isSoftwareLocked);
         rawBytes[directoryEntryOffset++] = (byte) 17;  // Hard coded for Track 17 for now
