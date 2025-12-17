@@ -23,8 +23,8 @@ public class TestMain
         disk.rawBytes = entireDisk;
         byte[] rawBytes = disk.rawBytes;
 
-        int offset = disk.getOffsetForTrackSector(8,20);        // End of it on the real disk  42752   A700
-        offset = disk.getOffsetForTrackSector(23,17);        // End of it on my disk 120064            1D500
+        int offset = disk.getOffsetForTrackSector(8,20);     // End of it on the real disk  42752   A700
+        offset = disk.getOffsetForTrackSector(23,17);        // End of it on my disk 120064 1D500
 
 
         List<DirectoryEntry> entries = new ArrayList<>();
@@ -68,7 +68,7 @@ public class TestMain
 
 //        printInDiskOrder(entries);
         printInDirectoryOrder(entries, disk.maxDirectoryEntries);
-        followFileTrackSectorLinks(17, 1, disk);
+        followFileTrackSectorLinks(17, 0, disk);
     }
 
     record DirectoryEntry(int directoryTrack, int directorySector, int sectorEntryNumber,

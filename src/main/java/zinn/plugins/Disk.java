@@ -1,5 +1,8 @@
 package zinn.plugins;
 
+import kickass.plugins.interf.general.IMemoryBlock;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -104,5 +107,63 @@ public abstract class Disk
 
         return availableTrackSector;
     }
+
+    public void writeFileToDisk(List<IMemoryBlock> memoryBlocks, boolean storeStartAddress, String storeFilename, String fileType, boolean isSoftwareLocked)
+    {
+        ByteLogic.BinaryFile binaryFile = ByteLogic.convertIMemoryBlocksToBinaryFile(memoryBlocks, storeStartAddress);
+        int sectorsNeeded = binaryFile.rawData().length / 254;  // 192 blocks
+        int bytesInLastSector = (binaryFile.rawData().length - (254 * (binaryFile.rawData().length / 254)));
+        if (bytesInLastSector > 0)
+            sectorsNeeded++;
+
+        // Decide where we are going to place the data, and mark the sectors used
+        List<Disk.TrackSector> trackSectors = new ArrayList<>(sectorsNeeded);
+        for (int n=0; n<sectorsNeeded;n++)
+        {
+            Disk.TrackSector storeAt = findUnallocatedTrackSector();
+            markTrackSector(storeAt.track(), storeAt.sector(), true);
+            trackSectors.add(storeAt);
+        }
+
+        // Place the sectors on the disk with pointers to the next sector
+        int binaryFileOffset = 0;
+        for (int n=0; n<sectorsNeeded;n++)
+        {
+            Disk.TrackSector storeAt = trackSectors.get(n);
+
+            int diskOffset = getOffsetForTrackSector(storeAt.track(), storeAt.sector());
+            if (n+1 == sectorsNeeded)       // This is the last sector
+            {
+                rawBytes[diskOffset++] = 0;
+                rawBytes[diskOffset++] = (byte) bytesInLastSector;
+                for (int x=0;x<bytesInLastSector;x++)
+                    rawBytes[diskOffset++] = binaryFile.rawData()[binaryFileOffset++];
+            }
+            else        // Point to the next track / sector
+            {
+                Disk.TrackSector nextSector = trackSectors.get(n+1);
+                rawBytes[diskOffset++] = (byte) nextSector.track();
+                rawBytes[diskOffset++] = (byte) nextSector.sector();
+                for (int x=0;x<254;x++)
+                    rawBytes[diskOffset++] = binaryFile.rawData()[binaryFileOffset++];
+            }
+        }
+
+        // Create a directory entry
+        // To get started, we are just going to hard code it on directoryTrack , and sector
+        int directoryEntryOffset = getOffsetForTrackSector(directoryTrack, directoryStartSector);
+        directoryEntryOffset+=2;  // Skip over the next directory track / sector
+        rawBytes[directoryEntryOffset++] = ByteLogic.convertToFileTypeByte(fileType, isSoftwareLocked);
+        rawBytes[directoryEntryOffset++] = (byte) 17;  // Hard coded for Track 17 for now
+        rawBytes[directoryEntryOffset++] = (byte) 0;   // Hard coded for Sector 0 for now
+        directoryEntryOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString(storeFilename, 16), directoryEntryOffset);     // File Name
+        rawBytes[directoryEntryOffset++] = (byte) 0;   // Rel File Track
+        rawBytes[directoryEntryOffset++] = (byte) 0;   // Rel File Sector
+        rawBytes[directoryEntryOffset++] = (byte) 0;   // Rel File Length
+        directoryEntryOffset+=6;                            // 6 Unused bytes
+        rawBytes[directoryEntryOffset++] = (byte) (sectorsNeeded % 255);
+        rawBytes[directoryEntryOffset] =   (byte) (sectorsNeeded / 256);
+    }
+
 
 }

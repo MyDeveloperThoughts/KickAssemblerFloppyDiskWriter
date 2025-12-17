@@ -88,4 +88,29 @@ public final class ByteLogic
 
         return fileTypeString;
     }
+
+    /**
+     * Bits 0-3	File Type (DEL, SEQ, PRG etc.)
+     *        4	Unused
+     *        5	Used only during SAVE-@ replacement
+     *        6	Locked flag (Set produces ">" locked files)
+     *        7	Closed flag (Not set produces "*", or "splat" files)   (Always 1)
+     * @param fileType lowercase string of the file type (del, seq, prg etc..)
+     * @param isSoftwareLocked puts a > next to the file in the directory, and it cannot be messed with
+     * @return byte to be used when creating the directory entry for the file
+     */
+    public static byte convertToFileTypeByte(String fileType, boolean isSoftwareLocked)
+    {
+        byte                            fileTypeByte = 0b00000000;  // DEL
+        if (fileType.equals("seq"))     fileTypeByte = 0b00000001;  // SEQ
+        if (fileType.equals("prg"))     fileTypeByte = 0b00000010;  // PRG
+        if (fileType.equals("usr"))     fileTypeByte = 0b00000011;  // USR
+        if (fileType.equals("rel"))     fileTypeByte = 0b00000100;  // USR
+
+        if (isSoftwareLocked)           fileTypeByte = (byte) (fileTypeByte | 0b01000000);  // Set bit 6
+        fileTypeByte                                 = (byte) (fileTypeByte | 0b10000000);  // Set bit 7
+
+        return fileTypeByte;
+    }
+
 }
