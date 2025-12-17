@@ -72,7 +72,7 @@ public final class CBMDiskWriter implements IDiskWriter
             if (!possibleFileTypes.contains(fileType))
                 engine.error(String.format("%s is an invalid file type.  Must be one of %s", fileType, possibleFileTypes));
 
-            disk.writeFileToDisk(memoryBlocks, storeStartAddress, storeFilename, fileType, isSoftwareLocked);
+            disk.writeFileToDisk(engine, memoryBlocks, storeStartAddress, storeFilename, fileType, isSoftwareLocked);
         }
 
         try(OutputStream output = engine.openOutputStream(diskFilename))
@@ -84,6 +84,4 @@ public final class CBMDiskWriter implements IDiskWriter
             engine.error(e.getMessage());
         }
     }
-
-    public record FileType(String fileTye, boolean isSoftwareLocked) {}
 }

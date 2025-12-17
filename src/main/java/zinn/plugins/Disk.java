@@ -1,5 +1,6 @@
 package zinn.plugins;
 
+import kickass.plugins.interf.general.IEngine;
 import kickass.plugins.interf.general.IMemoryBlock;
 
 import java.util.ArrayList;
@@ -78,10 +79,10 @@ public abstract class Disk
         return trackInfo==null ? 0 : trackInfo.sectorCount();
     }
 
-    public int getNextSectorUsingInterleave(int track, int sector)
+    public int getNextSectorUsingInterleave(int track, int sector, int interleave)
     {
         int numberOfSectorsInTrack = getCountOfSectorsInTrack(track);
-        return (sector + 10) % numberOfSectorsInTrack;
+        return (sector + interleave) % numberOfSectorsInTrack;
     }
 
 
@@ -100,7 +101,7 @@ public abstract class Disk
                 if (isTrackSectorAvailable(track, sector))
                     return new TrackSector(track, sector);
 
-                sector = getNextSectorUsingInterleave(track, sector);
+                sector = getNextSectorUsingInterleave(track, sector, fileSectorInterleave);
                 attemptsLeft--;
             }
         }
@@ -108,7 +109,7 @@ public abstract class Disk
         return availableTrackSector;
     }
 
-    public void writeFileToDisk(List<IMemoryBlock> memoryBlocks, boolean storeStartAddress, String storeFilename, String fileType, boolean isSoftwareLocked)
+    public void writeFileToDisk(IEngine engine, List<IMemoryBlock> memoryBlocks, boolean storeStartAddress, String storeFilename, String fileType, boolean isSoftwareLocked)
     {
         ByteLogic.BinaryFile binaryFile = ByteLogic.convertIMemoryBlocksToBinaryFile(memoryBlocks, storeStartAddress);
         int sectorsNeeded = binaryFile == null ? 0 : binaryFile.rawData().length / 254;  // 192 blocks
@@ -116,15 +117,29 @@ public abstract class Disk
         if (bytesInLastSector > 0)
             sectorsNeeded++;
 
-        // Decide where we are going to place the data, and mark the sectors used
+        // Decide where we are going to place the data on the disk and mark the sectors used
+        int binaryFileTrack = 0;
+        int binaryFileSector = 0;
         if (binaryFile!=null)
         {
             List<Disk.TrackSector> trackSectors = new ArrayList<>(sectorsNeeded);
             for (int n = 0; n < sectorsNeeded; n++)
             {
                 Disk.TrackSector storeAt = findUnallocatedTrackSector();
-                markTrackSector(storeAt.track(), storeAt.sector(), true);
-                trackSectors.add(storeAt);
+                if (storeAt == null)
+                    engine.error("Out of disk space while writing " + storeFilename + " to " + name);
+                if (storeAt!=null)
+                {
+                    markTrackSector(storeAt.track(), storeAt.sector(), true);
+                    trackSectors.add(storeAt);
+
+                    if (n==0)
+                    {
+                        binaryFileTrack = storeAt.track;
+                        binaryFileSector = storeAt.sector;
+                    }
+                }
+
             }
 
             // Place the sectors on the disk with pointers to the next sector
@@ -152,17 +167,48 @@ public abstract class Disk
             }
         }
 
-        int entryIndexInThisSector = 0;   // We can only fit 8 directory entries in each sector
         int entryTrack = directoryTrack;
         int entrySector= directoryStartSector;
 
         // Create a directory entry
-        // To get started, we are just going to hard code it on directoryTrack , and sector
+        // Find an empty entry in this sector.
+        Integer useEntryIndex = null;
+        while(useEntryIndex==null)
+        {
+            useEntryIndex = findFreeDirectoryEntryInThisTrackSector(entryTrack, entrySector);
+            if (useEntryIndex == null)
+            {
+                // All 8 entries in this track sector are used.
+                // Do need to create another track sector?
+                int directoryEntryOffset = getOffsetForTrackSector(entryTrack, entrySector);
+                byte nextTrack = rawBytes[directoryEntryOffset];
+                if (nextTrack == 0)        // Is the next directory track link set to 0
+                {
+                    // TODO: look to make nextSector wasn't already used
+                    int nextSector = getNextSectorUsingInterleave(entryTrack, entrySector, directorySectorInterleave);
+
+                    rawBytes[directoryEntryOffset] =  (byte) entryTrack;            // Set link to the next new directory track
+                    rawBytes[directoryEntryOffset + 1] = (byte) nextSector;
+
+                    int newDirectoryOffset = getOffsetForTrackSector(entryTrack, nextSector);
+                    rawBytes[newDirectoryOffset] =  (byte) 0;                     // Set link on new directory track to 0
+                    rawBytes[newDirectoryOffset + 1] = (byte) 0b11111111;         // and $FF to indicate last directory sector
+
+                    entrySector = nextSector;
+                }
+                else
+                    entrySector = rawBytes[directoryEntryOffset + 1];         // Follow the link to the next directory sector
+            }
+        }
+
+        engine.printNow("Writing [" + storeFilename + "] to " + entryTrack + " :"  + entrySector + " " + useEntryIndex);
+
         int directoryEntryOffset = getOffsetForTrackSector(entryTrack, entrySector);
+        directoryEntryOffset += (useEntryIndex * 32);
         directoryEntryOffset+=2;  // Skip over the next directory track / sector
         rawBytes[directoryEntryOffset++] = ByteLogic.convertToFileTypeByte(fileType, isSoftwareLocked);
-        rawBytes[directoryEntryOffset++] = (byte) 17;  // Hard coded for Track 17 for now
-        rawBytes[directoryEntryOffset++] = (byte) 0;   // Hard coded for Sector 0 for now
+        rawBytes[directoryEntryOffset++] = (byte) binaryFileTrack;  // Hard coded for Track 17 for now
+        rawBytes[directoryEntryOffset++] = (byte) binaryFileSector;   // Hard coded for Sector 0 for now
         directoryEntryOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString(storeFilename, 16), directoryEntryOffset);     // File Name
         rawBytes[directoryEntryOffset++] = (byte) 0;   // Rel File Track
         rawBytes[directoryEntryOffset++] = (byte) 0;   // Rel File Sector
@@ -170,7 +216,20 @@ public abstract class Disk
         directoryEntryOffset+=6;                            // 6 Unused bytes
         rawBytes[directoryEntryOffset++] = (byte) (sectorsNeeded % 255);
         rawBytes[directoryEntryOffset] =   (byte) (sectorsNeeded / 256);
+
     }
 
+    private Integer findFreeDirectoryEntryInThisTrackSector(int track, int sector)
+    {
+        int directoryEntryOffset = getOffsetForTrackSector(track, sector);
+        for (int entryIndex = 0; entryIndex < 8; entryIndex++)
+        {
+            int testForNameOffset = directoryEntryOffset + 6 + (32 * entryIndex);
+            if (rawBytes[testForNameOffset] == 0)       // File name is still 0 - this is available
+                return entryIndex;
+        }
+
+        return null;
+    }
 
 }
