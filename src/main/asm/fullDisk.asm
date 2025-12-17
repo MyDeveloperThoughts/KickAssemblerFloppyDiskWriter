@@ -1,0 +1,177 @@
+.segmentdef CODE
+.segment CODE
+BasicUpstart2(go)
+     * = * "Main Program"
+go:
+     lda #$02
+     sta $d020
+     rts
+
+// .disk [filename="test.d64", name="PLUGIN DISK", id="12", showInfo=true]
+
+// .disk Consolez [name="plugin disk"]
+// .disk [filename="test.d64", name="", id="", showInfo=true]
+// {
+//         [name="----------------", type="rel" ]
+// }
+.disk zinn [filename="test.d64", name="STUFF", id="CZ", driveType="1541"]
+{
+       [name="---------0-------", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/broadsides.prg" ],
+       [name="---------1-------", type="rel" ],
+       [name="---------2-------", type="rel" ],
+       [name="---------3-------", type="rel" ],
+       [name="---------4-------", type="rel" ],
+       [name="---------5-------", type="rel" ],
+       [name="---------6-------", type="rel" ],
+       [name="---------7-------", type="rel" ],
+       [name="---------8-------", type="rel" ],
+       [name="---------9-------", type="rel" ],
+       [name="--------10-------", type="rel" ],
+
+       [name="--------11-------", type="rel" ],
+       [name="--------12-------", type="rel" ],
+       [name="--------13-------", type="rel" ],
+       [name="--------14-------", type="rel" ],
+       [name="--------15-------", type="rel" ],
+       [name="--------16-------", type="rel" ],
+       [name="--------17-------", type="rel" ],
+       [name="--------18-------", type="rel" ],
+       [name="--------19-------", type="rel" ],
+       [name="--------20-------", type="rel" ],
+
+       [name="--------21-------", type="rel" ],
+       [name="--------22-------", type="rel" ],
+       [name="--------23-------", type="rel" ],
+       [name="--------24-------", type="rel" ],
+       [name="--------25-------", type="rel" ],
+       [name="--------26-------", type="rel" ],
+       [name="--------27-------", type="rel" ],
+       [name="--------28-------", type="rel" ],
+       [name="--------29-------", type="rel" ],
+       [name="--------30-------", type="rel" ],
+
+       [name="--------31-------", type="rel" ],
+       [name="--------32-------", type="rel" ],
+       [name="--------33-------", type="rel" ],
+       [name="--------34-------", type="rel" ],
+       [name="--------35-------", type="rel" ],
+       [name="--------36-------", type="rel" ],
+       [name="--------37-------", type="rel" ],
+       [name="--------38-------", type="rel" ],
+       [name="--------39-------", type="rel" ],
+       [name="--------40-------", type="rel" ],
+
+       [name="--------41-------", type="rel" ],
+       [name="--------42-------", type="rel" ],
+       [name="--------43-------", type="rel" ],
+       [name="--------44-------", type="rel" ],
+       [name="--------45-------", type="rel" ],
+       [name="--------46-------", type="rel" ],
+       [name="--------47-------", type="rel" ],
+       [name="--------48-------", type="rel" ],
+       [name="--------49-------", type="rel" ],
+       [name="--------50-------", type="rel" ],
+
+       [name="--------51-------", type="rel" ],
+       [name="--------52-------", type="rel" ],
+       [name="--------53-------", type="rel" ],
+       [name="--------54-------", type="rel" ],
+       [name="--------55-------", type="rel" ],
+       [name="--------56-------", type="rel" ],
+       [name="--------57-------", type="rel" ],
+       [name="--------58-------", type="rel" ],
+       [name="--------59-------", type="rel" ],
+       [name="--------60-------", type="rel" ],
+
+       [name="--------61-------", type="rel" ],
+       [name="--------62-------", type="rel" ],
+       [name="--------63-------", type="rel" ],
+       [name="--------64-------", type="rel" ],
+       [name="--------65-------", type="rel" ],
+       [name="--------66-------", type="rel" ],
+       [name="--------67-------", type="rel" ],
+       [name="--------68-------", type="rel" ],
+       [name="--------69-------", type="rel" ],
+       [name="--------70-------", type="rel" ],
+
+       [name="--------71-------", type="rel" ],
+       [name="--------72-------", type="rel" ],
+       [name="--------73-------", type="rel" ],
+       [name="--------74-------", type="rel" ],
+       [name="--------75-------", type="rel" ],
+       [name="--------76-------", type="rel" ],
+       [name="--------77-------", type="rel" ],
+       [name="--------78-------", type="rel" ],
+       [name="--------79-------", type="rel" ],
+       [name="--------80-------", type="rel" ],
+
+       [name="--------81-------", type="rel" ],
+       [name="--------82-------", type="rel" ],
+       [name="--------83-------", type="rel" ],
+       [name="--------84-------", type="rel" ],
+       [name="--------85-------", type="rel" ],
+       [name="--------86-------", type="rel" ],
+       [name="--------87-------", type="rel" ],
+       [name="--------88-------", type="rel" ],
+       [name="--------89-------", type="rel" ],
+       [name="--------90-------", type="rel" ],
+
+       [name="--------91-------", type="rel" ],
+       [name="--------92-------", type="rel" ],
+       [name="--------93-------", type="rel" ],
+       [name="--------94-------", type="rel" ],
+       [name="--------95-------", type="rel" ],
+       [name="--------96-------", type="rel" ],
+       [name="--------97-------", type="rel" ],
+       [name="--------98-------", type="rel" ],
+       [name="--------99-------", type="rel" ],
+       [name="-------100-------", type="rel" ],
+
+       [name="-------101-------", type="rel" ],
+       [name="-------102-------", type="rel" ],
+       [name="-------103-------", type="rel" ],
+       [name="-------104-------", type="rel" ],
+       [name="-------105-------", type="rel" ],
+       [name="-------106-------", type="rel" ],
+       [name="-------107-------", type="rel" ],
+       [name="-------108-------", type="rel" ],
+       [name="-------109-------", type="rel" ],
+       [name="-------110-------", type="rel" ],
+
+       [name="-------111-------", type="rel" ],
+       [name="-------112-------", type="rel" ],
+       [name="-------113-------", type="rel" ],
+       [name="-------114-------", type="rel" ],
+       [name="-------115-------", type="rel" ],
+       [name="-------116-------", type="rel" ],
+       [name="-------117-------", type="rel" ],
+       [name="-------118-------", type="rel" ],
+       [name="-------119-------", type="rel" ],
+       [name="-------120-------", type="rel" ],
+
+       [name="-------121-------", type="rel" ],
+       [name="-------122-------", type="rel" ],
+       [name="-------123-------", type="rel" ],
+       [name="-------124-------", type="rel" ],
+       [name="-------125-------", type="rel" ],
+       [name="-------126-------", type="rel" ],
+       [name="-------127-------", type="rel" ],
+       [name="-------128-------", type="rel" ],
+       [name="-------129-------", type="rel" ],
+       [name="-------130-------", type="rel" ],
+
+       [name="-------131-------", type="rel" ],
+       [name="-------132-------", type="rel" ],
+       [name="-------133-------", type="rel" ],
+       [name="-------134-------", type="rel" ],
+       [name="-------135-------", type="rel" ],
+       [name="-------136-------", type="rel" ],
+       [name="-------137-------", type="rel" ],
+       [name="-------138-------", type="rel" ],
+       [name="-------139-------", type="rel" ],
+       [name="-------140-------", type="rel" ],
+
+       [name="-------141-------", type="rel" ],
+       [name="-------142-------", type="rel" ],
+       [name="-------143-------", type="rel" ]
+}

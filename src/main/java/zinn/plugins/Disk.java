@@ -184,8 +184,35 @@ public abstract class Disk
                 byte nextTrack = rawBytes[directoryEntryOffset];
                 if (nextTrack == 0)        // Is the next directory track link set to 0
                 {
-                    // TODO: look to make nextSector wasn't already used
                     int nextSector = getNextSectorUsingInterleave(entryTrack, entrySector, directorySectorInterleave);
+
+                    if (isDirectorySectorUsed(entryTrack, nextSector))
+                    {
+                        nextSector = -1;
+                        for(int n=directoryStartSector; n<=directoryEndSector; n++)
+                        {
+                            int test = getNextSectorUsingInterleave(entryTrack, n, directorySectorInterleave);
+                            if (!isDirectorySectorUsed(entryTrack, test))
+                            {
+                                nextSector = test;
+                                break;
+                            }
+                        }
+
+                        // We still didn't find anything?  Let's now scan sequentially in cased to interleave algorithm skipped one
+                        if (nextSector == -1)
+                            for(int n=directoryStartSector; n<=directoryEndSector; n++)
+                            {
+                                if (!isDirectorySectorUsed(entryTrack, n))
+                                {
+                                    nextSector = n;
+                                    break;
+                                }
+                            }
+
+                        if (nextSector == -1)
+                            engine.error("No more directory sectors are available");
+                    }
 
                     rawBytes[directoryEntryOffset] =  (byte) entryTrack;            // Set link to the next new directory track
                     rawBytes[directoryEntryOffset + 1] = (byte) nextSector;
@@ -201,7 +228,8 @@ public abstract class Disk
             }
         }
 
-        engine.printNow("Writing [" + storeFilename + "] to " + entryTrack + " :"  + entrySector + " " + useEntryIndex);
+        engine.printNow("Writing " + xx + " [" + storeFilename + "] to entry " + useEntryIndex + " T:S " + entryTrack + ": "  + entrySector + "\t\tFile is at T:S " + binaryFileTrack + ":" +  binaryFileSector);
+        xx++;
 
         int directoryEntryOffset = getOffsetForTrackSector(entryTrack, entrySector);
         directoryEntryOffset += (useEntryIndex * 32);
@@ -219,6 +247,7 @@ public abstract class Disk
 
     }
 
+    static int xx = 0;
     private Integer findFreeDirectoryEntryInThisTrackSector(int track, int sector)
     {
         int directoryEntryOffset = getOffsetForTrackSector(track, sector);
@@ -230,6 +259,13 @@ public abstract class Disk
         }
 
         return null;
+    }
+
+    // A directory sector is used if there is a filename in entry 0
+    private boolean isDirectorySectorUsed(int track, int sector)
+    {
+        int directoryEntryOffset = getOffsetForTrackSector(track, sector);
+        return rawBytes[directoryEntryOffset + 6] != 0;
     }
 
 }
