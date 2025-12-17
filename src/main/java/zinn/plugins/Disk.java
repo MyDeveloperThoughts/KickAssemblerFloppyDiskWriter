@@ -104,6 +104,14 @@ public abstract class Disk
                 sector = getNextSectorUsingInterleave(track, sector, fileSectorInterleave);
                 attemptsLeft--;
             }
+
+            // We still didn't find anything?  Let's now scan sequentially in cased to interleave algorithm skipped one
+            int sectorsInTrack = getCountOfSectorsInTrack(track);
+            for(int n=0; n<=sectorsInTrack; n++)
+            {
+                if (isTrackSectorAvailable(track, n))
+                    return new TrackSector(track, n);
+            }
         }
 
         return availableTrackSector;
@@ -228,7 +236,7 @@ public abstract class Disk
             }
         }
 
-        engine.printNow("Writing " + xx + " [" + storeFilename + "] to entry " + useEntryIndex + " T:S " + entryTrack + ": "  + entrySector + "\t\tFile is at T:S " + binaryFileTrack + ":" +  binaryFileSector);
+        engine.printNow("Writing " + xx + " [" + storeFilename + "] " + sectorsNeeded + " sectors to entry " + useEntryIndex + " T:S " + entryTrack + ": "  + entrySector + "\t\tFile is at T:S " + binaryFileTrack + ":" +  binaryFileSector);
         xx++;
 
         int directoryEntryOffset = getOffsetForTrackSector(entryTrack, entrySector);

@@ -53,6 +53,8 @@ public final class CBMDiskWriter implements IDiskWriter
             engine.error(String.format("%s is an invalid drive type.  Must be one of %s", driveType, possibleDriveTypes));
 
         Disk disk = Disk.createFormattedDisk(diskFilename, diskName, diskId, driveType);
+        int totalCountOfSectors = disk.trackInfos.stream().mapToInt(DiskImageLogic.TrackInfo::sectorCount).sum();
+        System.out.println("Total sectors is " + totalCountOfSectors);
 
         List<IDiskFileData> filesFromAssembler = diskData.getFiles();
         for(IDiskFileData file : filesFromAssembler)
