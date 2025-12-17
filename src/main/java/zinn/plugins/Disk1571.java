@@ -115,7 +115,6 @@ public final class Disk1571 extends Disk
     @Override
     public void markTrackSector(int track, int sector, boolean isUsed)
     {
-        System.out.println("Marking used: " + track + ":" + sector);
         // If the track and sector are on side 1, mark the sector using the 1541 logic
         if (track<=35)
         {

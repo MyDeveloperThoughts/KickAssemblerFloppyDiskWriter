@@ -236,11 +236,14 @@ public abstract class Disk
             }
         }
 
-        engine.printNow("Writing " + xx + " [" + storeFilename + "] " + sectorsNeeded + " sectors to entry " + useEntryIndex + " T:S " + entryTrack + ": "  + entrySector + "\t\tFile is at T:S " + binaryFileTrack + ":" +  binaryFileSector);
-        xx++;
-
         int directoryEntryOffset = getOffsetForTrackSector(entryTrack, entrySector);
         directoryEntryOffset += (useEntryIndex * 32);
+
+        engine.printNow("Writing " + xx + " [" + storeFilename + "] " + sectorsNeeded + "\t\tsectors to entry " + useEntryIndex +
+                " T:S " + entryTrack + ": "  + entrySector + "\t\tFile is at T:S " + binaryFileTrack + ":" +  binaryFileSector +
+                "\t\tOffset: " + directoryEntryOffset);
+        xx++;
+
         directoryEntryOffset+=2;  // Skip over the next directory track / sector
         rawBytes[directoryEntryOffset++] = ByteLogic.convertToFileTypeByte(fileType, isSoftwareLocked);
         rawBytes[directoryEntryOffset++] = (byte) binaryFileTrack;  // Hard coded for Track 17 for now

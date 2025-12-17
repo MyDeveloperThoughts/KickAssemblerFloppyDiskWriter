@@ -1,4 +1,4 @@
-.segmentdef CODE
+z.segmentdef CODE
 .segment CODE
 BasicUpstart2(go)
      * = * "Main Program"

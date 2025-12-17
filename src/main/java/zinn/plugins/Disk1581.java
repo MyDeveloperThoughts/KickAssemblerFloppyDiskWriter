@@ -97,7 +97,7 @@ public final class Disk1581 extends Disk
         markTrackSector(40,0,true);     // Disk Header
         markTrackSector(40,1,true);     // BAM Side 1
         markTrackSector(40,2,true);     // BAM SIde 2
-        markTrackSector(40,3,true);     // Director
+        markTrackSector(40,3,true);     // Directory
     }
 
     @Override
@@ -112,7 +112,7 @@ public final class Disk1581 extends Disk
         if (sector <=15) sectorOffset = 2;      // sector 8-15 is in offset 2
         if (sector <=7)  sectorOffset = 1;      // sector 0-7 is in offset 0
 
-        int sectorCountIndex = testOffset + ((track - 1 ) * 6);
+        int sectorCountIndex = testOffset + ((track - 1 ) * 5);
         int bamIndex = sectorCountIndex + sectorOffset;
 
         byte existingByte = rawBytes[bamIndex];
@@ -128,7 +128,7 @@ public final class Disk1581 extends Disk
 
         // Need to count how many sectors in the track are available (How many bits are set)
         int countOfAvail = 0;
-        for(int n=0; n<6; n++)
+        for(int n=0; n<5; n++)
         {
             byte sectorByte = rawBytes[bamIndex + n];
             if ((sectorByte & 0b00000001) != 0)  countOfAvail++;
@@ -140,7 +140,7 @@ public final class Disk1581 extends Disk
             if ((sectorByte & 0b01000000) != 0)  countOfAvail++;
             if ((sectorByte & 0b10000000) != 0)  countOfAvail++;
         }
-        rawBytes[testOffset + ((track - 1 ) * 6)] = (byte) countOfAvail;
+        rawBytes[testOffset + ((track - 1 ) * 5)] = (byte) countOfAvail;
     }
 
     @Override
@@ -155,7 +155,7 @@ public final class Disk1581 extends Disk
         if (sector <=15) sectorOffset = 2;      // sector 8-15 is in offset 2
         if (sector <=7)  sectorOffset = 1;      // sector 0-7 is in offset 0
 
-        int sectorCountIndex = testOffset + ((track - 1 ) * 6);
+        int sectorCountIndex = testOffset + ((track - 1 ) * 5);
         int bamIndex = sectorCountIndex + sectorOffset;
 
         byte existingByte = rawBytes[bamIndex];
