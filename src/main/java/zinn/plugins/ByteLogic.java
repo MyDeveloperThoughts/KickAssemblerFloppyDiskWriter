@@ -35,15 +35,15 @@ public final class ByteLogic
     {
         byte maskingBit = 0;
 
-        // This is a bit goofy, but this will work for now.
-        if (sector == 0 || sector == 8  || sector == 16)   maskingBit =        0b00000001;
-        if (sector == 1 || sector == 9  || sector == 17)   maskingBit =        0b00000010;
-        if (sector == 2 || sector == 10 || sector == 18)   maskingBit =        0b00000100;
-        if (sector == 3 || sector == 11 || sector == 19)   maskingBit =        0b00001000;
-        if (sector == 4 || sector == 12 || sector == 20)   maskingBit =        0b00010000;
-        if (sector == 5 || sector == 13 || sector == 21)   maskingBit =        0b00100000;
-        if (sector == 6 || sector == 14 || sector == 22)   maskingBit =        0b01000000;
-        if (sector == 7 || sector == 15 || sector == 23)   maskingBit = (byte) 0b10000000;
+        // This is a bit goofy, but this will work for now.   1541 and 1571 and 1581
+        if (sector == 0 || sector == 8  || sector == 16 || sector == 24 || sector == 32)   maskingBit =        0b00000001;
+        if (sector == 1 || sector == 9  || sector == 17 || sector == 25 || sector == 33)   maskingBit =        0b00000010;
+        if (sector == 2 || sector == 10 || sector == 18 || sector == 26 || sector == 34)   maskingBit =        0b00000100;
+        if (sector == 3 || sector == 11 || sector == 19 || sector == 27 || sector == 35)   maskingBit =        0b00001000;
+        if (sector == 4 || sector == 12 || sector == 20 || sector == 28 || sector == 36)   maskingBit =        0b00010000;
+        if (sector == 5 || sector == 13 || sector == 21 || sector == 29 || sector == 37)   maskingBit =        0b00100000;
+        if (sector == 6 || sector == 14 || sector == 22 || sector == 30 || sector == 38)   maskingBit =        0b01000000;
+        if (sector == 7 || sector == 15 || sector == 23 || sector == 31 || sector == 39)   maskingBit = (byte) 0b10000000;
 
         return maskingBit;
     }

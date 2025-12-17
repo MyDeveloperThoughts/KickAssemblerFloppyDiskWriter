@@ -7,13 +7,11 @@ go:
      sta $d020
      rts
 
-// .disk [filename="test.d64", name="PLUGIN DISK", id="12", showInfo=true]
-
 // .disk Consolez [name="plugin disk"]
-// .disk [filename="test.d64", name="", id="", showInfo=true]
-// {
-//         [name="----------------", type="rel" ]
-// }
+ .disk zinn [filename="test-1581.d81", name="STUFF", id="CZ", driveType="1581"]
+ {
+
+ }
 .disk zinn [filename="test.d81", name="STUFF", id="CZ", driveType="1581"]
 {
        [name="SIDPLAYER128", type="prg", prgFiles="C:\project\KickAssemblerFloppyDiskWriter\output/sidplayer.128" ],

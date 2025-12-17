@@ -3,6 +3,7 @@ package zinn.plugins;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static zinn.plugins.Disk1541.getCountOfSectorsAvailableInBAMByte;
 import static zinn.plugins.DiskImageLogic.createTrackInfo;
 
 public final class Disk1581 extends Disk
@@ -61,6 +62,7 @@ public final class Disk1581 extends Disk
             // Byte 5: $1F    11111111     Sector 31 30 29 28 27 26 25 24    (1=Available, 0=Used )
             // Byte 6: $1F    11111111     Sector 39 38 37 36 35 34 33 32    (1=Available, 0=Used )
             diskOffset = getOffsetForTrackSector(40, bamSector);
+
             if (bamSector==1)
             {
                 rawBytes[diskOffset++] = (byte) 40;                  // Next track for BAM Part 2 (Track 40)
@@ -71,6 +73,7 @@ public final class Disk1581 extends Disk
                 rawBytes[diskOffset++] = (byte) 0;                  // No next track
                 rawBytes[diskOffset++] = (byte) 255;                // No next sector
             }
+
             rawBytes[diskOffset++] = (byte) 68;                  //  'D' (Version #)                     01000100
             rawBytes[diskOffset++] = (byte) 187;                 //  'D' (Version #) in ones complement  10111011
             diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString(id, 2), diskOffset);     // 2 byte disk ID
@@ -106,14 +109,14 @@ public final class Disk1581 extends Disk
         int testOffset = track <=40 ? getOffsetForTrackSector(40,1) : getOffsetForTrackSector(40,2);
         testOffset+=16;     // Skip past the header stuff
 
-        int sectorOffset = 5;      // sector 32-40 is in offset 1
-        if (sector <=31) sectorOffset = 4;      // sector 24-31 is in offset 4
-        if (sector <=23) sectorOffset = 3;      // sector 16-23 is in offset 3
-        if (sector <=15) sectorOffset = 2;      // sector 8-15 is in offset 2
-        if (sector <=7)  sectorOffset = 1;      // sector 0-7 is in offset 0
+        int sectorOffset = 4;      // sector 32-40 is in offset 4
+        if (sector <=31) sectorOffset = 3;      // sector 24-31 is in offset 3
+        if (sector <=23) sectorOffset = 2;      // sector 16-23 is in offset 2
+        if (sector <=15) sectorOffset = 1;      // sector 8-15 is in offset 1
+        if (sector <=7)  sectorOffset = 0;      // sector 0-7 is in offset 0
 
-        int sectorCountIndex = testOffset + ((track - 1 ) * 5);
-        int bamIndex = sectorCountIndex + sectorOffset;
+        int sectorCountIndex = testOffset + ((track - 1 ) * 6) + sectorOffset;
+        int bamIndex = sectorCountIndex + 1;
 
         byte existingByte = rawBytes[bamIndex];
         byte maskingBit = ByteLogic.getSectorBAMMaskingBit(sector);
@@ -130,17 +133,11 @@ public final class Disk1581 extends Disk
         int countOfAvail = 0;
         for(int n=0; n<5; n++)
         {
-            byte sectorByte = rawBytes[bamIndex + n];
-            if ((sectorByte & 0b00000001) != 0)  countOfAvail++;
-            if ((sectorByte & 0b00000010) != 0)  countOfAvail++;
-            if ((sectorByte & 0b00000100) != 0)  countOfAvail++;
-            if ((sectorByte & 0b00001000) != 0)  countOfAvail++;
-            if ((sectorByte & 0b00010000) != 0)  countOfAvail++;
-            if ((sectorByte & 0b00100000) != 0)  countOfAvail++;
-            if ((sectorByte & 0b01000000) != 0)  countOfAvail++;
-            if ((sectorByte & 0b10000000) != 0)  countOfAvail++;
+            byte sectorByte = rawBytes[testOffset + ((track - 1 ) * 6) + 1 + n];
+            countOfAvail += getCountOfSectorsAvailableInBAMByte(sectorByte);
+
         }
-        rawBytes[testOffset + ((track - 1 ) * 5)] = (byte) countOfAvail;
+        rawBytes[testOffset + ((track - 1 ) * 6)] = (byte) countOfAvail;
     }
 
     @Override
@@ -149,18 +146,21 @@ public final class Disk1581 extends Disk
         int testOffset = track <=40 ? getOffsetForTrackSector(40,1) : getOffsetForTrackSector(40,2);
         testOffset+=16;     // Skip past the header stuff
 
-        int sectorOffset = 5;      // sector 32-40 is in offset 1
-        if (sector <=31) sectorOffset = 4;      // sector 24-31 is in offset 4
-        if (sector <=23) sectorOffset = 3;      // sector 16-23 is in offset 3
-        if (sector <=15) sectorOffset = 2;      // sector 8-15 is in offset 2
-        if (sector <=7)  sectorOffset = 1;      // sector 0-7 is in offset 0
+        int sectorOffset = 4;      // sector 32-40 is in offset 1
+        if (sector <=31) sectorOffset = 3;      // sector 24-31 is in offset 4
+        if (sector <=23) sectorOffset = 2;      // sector 16-23 is in offset 3
+        if (sector <=15) sectorOffset = 1;      // sector 8-15 is in offset 2
+        if (sector <=7)  sectorOffset = 0;      // sector 0-7 is in offset 0
 
-        int sectorCountIndex = testOffset + ((track - 1 ) * 5);
-        int bamIndex = sectorCountIndex + sectorOffset;
+        if (track > 40) track -= 40;
+        int sectorCountIndex = testOffset + ((track - 1 ) * 6) + sectorOffset;
+        int bamIndex = sectorCountIndex + 1;
 
         byte existingByte = rawBytes[bamIndex];
         byte maskingBit = ByteLogic.getSectorBAMMaskingBit(sector);
 
+//        System.out.println("Track " + track + ":" + sector + " is available? " + ((existingByte & maskingBit) != 0) + " " + bamIndex);
         return (existingByte & maskingBit) != 0;
+
     }
 }
