@@ -1,7 +1,7 @@
 # MultiDisk Writer plugin for Kick Assembler
 A Disk Writer plugin for Kick Assembler that supports the 1541, 1571 and 1581 disk formats.   d64, d71 and 81.  
 Written by Chris Zinn.  
-This is a work in progress and will most likely drastically change over the next few weeks.  12/18/2024
+This is a work in progress and will most likely drastically change over the next few weeks.  12/18/2025
 
 # Setting up the project on Windows 11
 This is how I configured machine to work with this project.  
