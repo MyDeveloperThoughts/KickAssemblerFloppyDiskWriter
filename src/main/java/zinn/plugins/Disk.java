@@ -4,6 +4,7 @@ import kickass.plugins.interf.general.IEngine;
 import kickass.plugins.interf.general.IMemoryBlock;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ public abstract class Disk
     int    fileSectorInterleave;
     int    directorySectorInterleave;
     int[]  trackCreationOrder;
+    boolean printDebugInformation;
 
     public static Disk createFormattedDisk(String fileName, String name, String id, String driveType)
     {
@@ -128,9 +130,10 @@ public abstract class Disk
         // Decide where we are going to place the data on the disk and mark the sectors used
         int binaryFileTrack = 0;
         int binaryFileSector = 0;
+        List<Disk.TrackSector> trackSectors = Collections.emptyList();
         if (binaryFile!=null)
         {
-            List<Disk.TrackSector> trackSectors = new ArrayList<>(sectorsNeeded);
+            trackSectors = new ArrayList<>(sectorsNeeded);
             for (int n = 0; n < sectorsNeeded; n++)
             {
                 Disk.TrackSector storeAt = findUnallocatedTrackSector();
@@ -239,10 +242,16 @@ public abstract class Disk
         int directoryEntryOffset = getOffsetForTrackSector(entryTrack, entrySector);
         directoryEntryOffset += (useEntryIndex * 32);
 
-        engine.printNow("Writing " + xx + " [" + storeFilename + "] " + sectorsNeeded + "\t\tsectors to entry " + useEntryIndex +
-                " T:S " + entryTrack + ": "  + entrySector + "\t\tFile is at T:S " + binaryFileTrack + ":" +  binaryFileSector +
-                "\t\tOffset: " + directoryEntryOffset);
-        xx++;
+        if (printDebugInformation)
+        {
+            engine.printNow(String.format("  file: \"%-16s\"\t%3d blocks\t (Dir Entry " + useEntryIndex +
+                            " T:S " + entryTrack + ":" + entrySector + ")\t\tFile starts at T:S " + binaryFileTrack + ":" + binaryFileSector,
+                    storeFilename, sectorsNeeded));
+
+            int block = 1;
+            for(TrackSector ts : trackSectors)
+                engine.printNow(String.format("     Block %3d. T:S %d:%d",  block++, ts.track(), ts.sector()));
+        }
 
         directoryEntryOffset+=2;  // Skip over the next directory track / sector
         rawBytes[directoryEntryOffset++] = ByteLogic.convertToFileTypeByte(fileType, isSoftwareLocked);
@@ -258,7 +267,6 @@ public abstract class Disk
 
     }
 
-    static int xx = 0;
     private Integer findFreeDirectoryEntryInThisTrackSector(int track, int sector)
     {
         int directoryEntryOffset = getOffsetForTrackSector(track, sector);

@@ -12,11 +12,12 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
 
-/**
- * .disk [filename="something.d64" name="empty" id="cz" driveType="1541" (1541, 1571, 1581)
- */
+
 public final class MultiDiskWriter implements IDiskWriter
 {
+    public static final String VERSION = "0.5α";
+    public static final String VERSION_DATE = "12/18/2025";
+
     private static final List<String> possibleDriveTypes = List.of("1541", "1571", "1581");
     private static final List<String> possibleFileTypes  = List.of("del", "seq", "prg", "usr", "rel");
     private final DiskWriterDefinition m_definition;
@@ -26,7 +27,7 @@ public final class MultiDiskWriter implements IDiskWriter
         m_definition = new DiskWriterDefinition();
         m_definition.setName("multidisk");
 
-        m_definition.setAllDiskParameters(Set.of("filename", "name", "id", "driveType"));
+        m_definition.setAllDiskParameters(Set.of("filename", "name", "id", "driveType", "showInfo"));
         m_definition.setNonOptionalDiskParameters(Set.of("filename"));
 
         m_definition.setAllFileParameters(Set.of("name","type"));
@@ -42,17 +43,19 @@ public final class MultiDiskWriter implements IDiskWriter
     @Override
     public void execute(IDiskData diskData, IEngine engine)
     {
-        String diskFilename = diskData.getParameters().getStringValue("filename", "");
+        String diskFilename  = diskData.getParameters().getStringValue("filename", "");
         String diskName      = diskData.getParameters().getStringValue("name", "UNNAMED");
         String diskId        = diskData.getParameters().getStringValue("id", "2A");
-        String driveType    = diskData.getParameters().getStringValue("driveType", "1541");
+        String driveType     = diskData.getParameters().getStringValue("driveType", "1541");
+        boolean showInfo     = diskData.getParameters().getBoolValue("showInfo", false);
 
         if (!possibleDriveTypes.contains(driveType))
             engine.error(String.format("%s is an invalid drive type.  Must be one of %s", driveType, possibleDriveTypes));
 
         Disk disk = Disk.createFormattedDisk(diskFilename, diskName, diskId, driveType);
-        int totalCountOfSectors = disk.trackInfos.stream().mapToInt(DiskImageLogic.TrackInfo::sectorCount).sum();
-        System.out.println("Total sectors is " + totalCountOfSectors);
+        disk.printDebugInformation = showInfo;
+
+        engine.printNow(String.format("Disk %s\t%s\tName:%s Id:%s\t\tMultiDisk Writer Plugin %s %s",diskFilename, driveType, diskName, diskId, VERSION, VERSION_DATE));
 
         List<IDiskFileData> filesFromAssembler = diskData.getFiles();
         for(IDiskFileData file : filesFromAssembler)
