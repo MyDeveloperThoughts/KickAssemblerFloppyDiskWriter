@@ -246,8 +246,8 @@ public abstract class Disk
 
         directoryEntryOffset+=2;  // Skip over the next directory track / sector
         rawBytes[directoryEntryOffset++] = ByteLogic.convertToFileTypeByte(fileType, isSoftwareLocked);
-        rawBytes[directoryEntryOffset++] = (byte) binaryFileTrack;  // Hard coded for Track 17 for now
-        rawBytes[directoryEntryOffset++] = (byte) binaryFileSector;   // Hard coded for Sector 0 for now
+        rawBytes[directoryEntryOffset++] = (byte) binaryFileTrack;
+        rawBytes[directoryEntryOffset++] = (byte) binaryFileSector;
         directoryEntryOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString(storeFilename, 16), directoryEntryOffset);     // File Name
         rawBytes[directoryEntryOffset++] = (byte) 0;   // Rel File Track
         rawBytes[directoryEntryOffset++] = (byte) 0;   // Rel File Sector

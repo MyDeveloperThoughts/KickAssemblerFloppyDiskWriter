@@ -29,6 +29,6 @@ go:
 
 .disk multidisk [filename="test.d64", name="STUFF", id="CZ", driveType="1541"]
 {
-        [name="HELLOWORLD", type="prg", segments = "CODE"]
+        [name="HELLO WORLD", type="prg", segments = "CODE"]
 }
 

@@ -19,9 +19,11 @@ public final class ByteLogic
     {
         if (value.length()>maxLength)
             value = value.substring(0,maxLength);
-        return String.format("%-" + maxLength + "s",value)
-                .replace(' ', (char) 160)                       // Pad with shift space ($A0 160)
-                .getBytes(StandardCharsets.ISO_8859_1);
+
+        while(value.length()<maxLength)
+            value += (char) 160;
+
+        return value.getBytes(StandardCharsets.ISO_8859_1);
     }
 
     static byte[] createBytesOfChar(byte charToFill, int length)

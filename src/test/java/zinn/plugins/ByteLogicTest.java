@@ -1,6 +1,9 @@
 package zinn.plugins;
 
 import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ByteLogicTest
@@ -25,5 +28,16 @@ public class ByteLogicTest
         assertThat( ByteLogic.convertToFileTypeByte("prg", true) + 256).isEqualTo( 2 + 192);
         assertThat( ByteLogic.convertToFileTypeByte("usr", true) + 256).isEqualTo( 3 + 192);
         assertThat( ByteLogic.convertToFileTypeByte("rel", true) + 256).isEqualTo( 4 + 192);
+    }
+
+    @Test
+    public void createShiftSpacePaddedString()
+    {
+        assertThat(ByteLogic.createShiftSpacePaddedString("HELLO WORLD", 16))
+                .isEqualTo( ("HELLO WORLD" + (char) 160 + (char) 160 + (char) 160 + (char) 160 + (char) 160).getBytes(StandardCharsets.ISO_8859_1));
+        assertThat(ByteLogic.createShiftSpacePaddedString("   HELLO WORLD", 16))
+                .isEqualTo( ("   HELLO WORLD" + (char) 160 + (char) 160).getBytes(StandardCharsets.ISO_8859_1));
+        assertThat(ByteLogic.createShiftSpacePaddedString("   HELLO WORLD  ", 16))
+                .isEqualTo( ("   HELLO WORLD  ").getBytes(StandardCharsets.ISO_8859_1));
     }
 }
