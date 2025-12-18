@@ -6,6 +6,9 @@ import java.util.stream.Collectors;
 
 import static zinn.plugins.DiskImageLogic.createTrackInfo;
 
+
+// See specs on the 1541 .d64 layout here:
+// https://vice-emu.sourceforge.io/vice_17.html#SEC410
 public final class Disk1541 extends Disk
 {
     public Disk1541(String fileName, String name, String id)
@@ -38,7 +41,6 @@ public final class Disk1541 extends Disk
     @Override
     public void formatDisk()
     {
-        // https://vice-emu.sourceforge.io/vice_17.html#SEC410
         // 1541 - Prepare a BAM (Block Availability Map) on Track 18 Sector 0
         // Bytes 0 - 3 is the BAM Header
         int diskOffset = getOffsetForTrackSector(18,0);         // The BAM (Block Availability Map)
@@ -56,7 +58,7 @@ public final class Disk1541 extends Disk
         // Byte 3: $1F    00011111     Sector 23 22 21 20 19 18 17 16    (1=Available, 0=Used ) (Never more than 21 sectors on a track)
         for(int track=1; track<=35; track++)
         {
-            BAMEntry n = createNewBAMEntry(getCountOfSectorsInTrack(track));
+            BAMEntry n = createNewBAMEntryFor1541or1571(getCountOfSectorsInTrack(track));
 
             rawBytes[diskOffset++] = n.countOFSectorsInTrack();
             rawBytes[diskOffset++] = n.byte1();
@@ -64,11 +66,9 @@ public final class Disk1541 extends Disk
             rawBytes[diskOffset++] = n.byte3();
         }
 
-        // Let's mark Track 18 Sector 0 used
         markTrackSector(18,0,true);     // The BAM
         markTrackSector(18,1,true);     // The Disk Directory Sector
 
-        // Write out the disk name and id
         diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString(name, 16), diskOffset);     // Disk Name
         diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("", 2),    diskOffset);     // 2 bytes $A0
         diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString(id, 2),    diskOffset);     // 2 byte disk ID
@@ -83,9 +83,9 @@ public final class Disk1541 extends Disk
     }
 
     @Override
-    public void markTrackSector(int track, int sector, boolean isUsed)
+    public void markTrackSector(int track, int sector, boolean inUse)
     {
-        markTrackSector(track, sector, isUsed, this);
+        markTrackSector(track, sector, inUse, this);
     }
 
     public static void markTrackSector(int track, int sector, boolean isUsed, Disk disk)
@@ -114,7 +114,7 @@ public final class Disk1541 extends Disk
         for(int n=0; n<3; n++)
         {
             byte sectorByte = disk.rawBytes[testOffset + ((track - 1 ) * 4) + 1 + n];
-            countOfAvail += getCountOfSectorsAvailableInBAMByte(sectorByte);
+            countOfAvail += ByteLogic.getCountOfSectorsAvailableInBAMByte(sectorByte);
 
         }
         disk.rawBytes[testOffset + ((track - 1 ) * 4)] = (byte) countOfAvail;
@@ -142,19 +142,6 @@ public final class Disk1541 extends Disk
         return (existingByte & maskingBit) != 0;
     }
 
-    static int getCountOfSectorsAvailableInBAMByte(byte bamByte)
-    {
-        int countAvailable = 0;
-        if ((bamByte & 0b00000001) != 0)  countAvailable++;
-        if ((bamByte & 0b00000010) != 0)  countAvailable++;
-        if ((bamByte & 0b00000100) != 0)  countAvailable++;
-        if ((bamByte & 0b00001000) != 0)  countAvailable++;
-        if ((bamByte & 0b00010000) != 0)  countAvailable++;
-        if ((bamByte & 0b00100000) != 0)  countAvailable++;
-        if ((bamByte & 0b01000000) != 0)  countAvailable++;
-        if ((bamByte & 0b10000000) != 0)  countAvailable++;
 
-        return countAvailable;
-    }
 }
 

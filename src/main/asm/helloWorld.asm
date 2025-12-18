@@ -39,7 +39,7 @@ go:
 
 .disk multidisk [filename="test.d64", name="STUFF", id="CZ", showInfo=false, driveType="1541"]
 {
-        [name="HELLO WORLD", type="prg", segments = "CODE"],
+        [name="HELLO WORLD", type="prg<", segments = "CODE"],
         [name="SID PLAYER", type="prg", prgFiles="testfiles/sidplayer.64"],
         [name="SID.OBJ.64", type="prg", prgFiles="testfiles/sid.obj.64"],
         [name="SID BURNER.MUS", type="prg", prgFiles="testfiles/sidburner.mus"]

@@ -106,4 +106,18 @@ public final class ByteLogic
         return fileTypeByte;
     }
 
+    static int getCountOfSectorsAvailableInBAMByte(byte bamByte)
+    {
+        int countAvailable = 0;
+        if ((bamByte & 0b00000001) != 0)  countAvailable++;
+        if ((bamByte & 0b00000010) != 0)  countAvailable++;
+        if ((bamByte & 0b00000100) != 0)  countAvailable++;
+        if ((bamByte & 0b00001000) != 0)  countAvailable++;
+        if ((bamByte & 0b00010000) != 0)  countAvailable++;
+        if ((bamByte & 0b00100000) != 0)  countAvailable++;
+        if ((bamByte & 0b01000000) != 0)  countAvailable++;
+        if ((bamByte & 0b10000000) != 0)  countAvailable++;
+
+        return countAvailable;
+    }
 }

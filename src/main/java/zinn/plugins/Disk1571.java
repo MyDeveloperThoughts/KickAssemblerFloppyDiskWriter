@@ -6,10 +6,10 @@ import java.util.stream.Collectors;
 
 import static zinn.plugins.DiskImageLogic.createTrackInfo;
 
+// See specs on the 1571 .d71 layout here:
+// https://vice-emu.sourceforge.io/vice_17.html#SEC416
 public final class Disk1571 extends Disk
 {
-
-    // Total sectors is 1366
     public Disk1571(String fileName, String name, String id)
     {
         this.fileName = fileName;
@@ -45,7 +45,6 @@ public final class Disk1571 extends Disk
     @Override
     public void formatDisk()
     {
-        // https://vice-emu.sourceforge.io/vice_17.html#SEC416
         // 1571 - Prepare 2 BAM (Block Availability Map)
         //        First is just like the 1541 on Track 18 Sector 0
 
@@ -65,7 +64,7 @@ public final class Disk1571 extends Disk
         // Byte 3: $1F    00011111     Sector 23 22 21 20 19 18 17 16    (1=Available, 0=Used ) (Never more than 21 sectors on a track)
         for(int track=1; track<=35; track++)
         {
-            BAMEntry n = createNewBAMEntry(getCountOfSectorsInTrack(track));
+            BAMEntry n = createNewBAMEntryFor1541or1571(getCountOfSectorsInTrack(track));
 
             rawBytes[diskOffset++] = n.countOFSectorsInTrack();
             rawBytes[diskOffset++] = n.byte1();
@@ -99,7 +98,7 @@ public final class Disk1571 extends Disk
         diskOffset = getOffsetForTrackSector(53,0);     // 266240  $41000
         for(int track=36; track<=70; track++)
         {
-            BAMEntry n = createNewBAMEntry(getCountOfSectorsInTrack(track));
+            BAMEntry n = createNewBAMEntryFor1541or1571(getCountOfSectorsInTrack(track));
 
             rawBytes[diskOffset++] = n.byte1();
             rawBytes[diskOffset++] = n.byte2();
@@ -113,12 +112,12 @@ public final class Disk1571 extends Disk
     }
 
     @Override
-    public void markTrackSector(int track, int sector, boolean isUsed)
+    public void markTrackSector(int track, int sector, boolean inUse)
     {
         // If the track and sector are on side 1, mark the sector using the 1541 logic
         if (track<=35)
         {
-            Disk1541.markTrackSector(track, sector, isUsed, this);
+            Disk1541.markTrackSector(track, sector, inUse, this);
             return;
         }
 
@@ -134,12 +133,12 @@ public final class Disk1571 extends Disk
         byte existingByte = rawBytes[bamBitmapOffset];
         byte maskingBit = ByteLogic.getSectorBAMMaskingBit(sector);
 
-        if (isUsed) // Force that bit to 0
+        if (inUse) // Force that bit to 0
         {
             maskingBit = (byte) (maskingBit ^ (byte) 255);
             rawBytes[bamBitmapOffset] = (byte) (existingByte & maskingBit);
         }
-        if (!isUsed)  // Force the bit to 1
+        if (!inUse)  // Force the bit to 1
             rawBytes[bamBitmapOffset] = (byte) (existingByte | maskingBit);
 
         // Need to count how many sectors in the track are available (How many bits are set)
@@ -150,7 +149,7 @@ public final class Disk1571 extends Disk
         {
             int sectorByteLocation = bamBitmapOffset + n;
             byte sectorByte = rawBytes[sectorByteLocation];
-            countOfAvail += Disk1541.getCountOfSectorsAvailableInBAMByte(sectorByte);
+            countOfAvail += ByteLogic.getCountOfSectorsAvailableInBAMByte(sectorByte);
         }
 
         int highTrackSectorCountIndex = getOffsetForTrackSector(18,0) + 221 + (track -1);

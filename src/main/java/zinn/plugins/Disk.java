@@ -47,11 +47,11 @@ public abstract class Disk
     }
 
     public abstract void formatDisk();
-    public abstract void markTrackSector(int track, int sector, boolean iUse);
+    public abstract void markTrackSector(int track, int sector, boolean inUse);
     public abstract boolean isTrackSectorAvailable(int track, int sector);
 
     record BAMEntry(byte countOFSectorsInTrack, byte byte1, byte byte2, byte byte3) {}
-    BAMEntry createNewBAMEntry(int countOFSectorsInTrack)
+    BAMEntry createNewBAMEntryFor1541or1571(int countOFSectorsInTrack)
     {
         int byte1  = 255;
         int byte2  = 255;
@@ -107,7 +107,7 @@ public abstract class Disk
                 attemptsLeft--;
             }
 
-            // We still didn't find anything?  Let's now scan sequentially in cased to interleave algorithm skipped one
+            // We still didn't find anything?  Let's now scan sequentially in case the interleave algorithm skipped one
             int sectorsInTrack = getCountOfSectorsInTrack(track);
             for(int n=0; n<=sectorsInTrack; n++)
             {
@@ -122,12 +122,12 @@ public abstract class Disk
     public void writeFileToDisk(IEngine engine, List<IMemoryBlock> memoryBlocks, boolean storeStartAddress, String storeFilename, String fileType, boolean isSoftwareLocked)
     {
         ByteLogic.BinaryFile binaryFile = ByteLogic.convertIMemoryBlocksToBinaryFile(memoryBlocks, storeStartAddress);
-        int sectorsNeeded = binaryFile == null ? 0 : binaryFile.rawData().length / 254;  // 192 blocks
+        int sectorsNeeded = binaryFile == null ? 0 : binaryFile.rawData().length / 254;
         int bytesInLastSector = binaryFile == null ? 0 : (binaryFile.rawData().length - (254 * (binaryFile.rawData().length / 254)));
         if (bytesInLastSector > 0)
             sectorsNeeded++;
 
-        // Decide where we are going to place the data on the disk and mark the sectors used
+        // Decide where to place the data on the disk and mark the sectors used
         int binaryFileTrack = 0;
         int binaryFileSector = 0;
         List<Disk.TrackSector> trackSectors = Collections.emptyList();
@@ -182,18 +182,16 @@ public abstract class Disk
         int entrySector= directoryStartSector;
 
         // Create a directory entry
-        // Find an empty entry in this sector.
         Integer useEntryIndex = null;
         while(useEntryIndex==null)
         {
             useEntryIndex = findFreeDirectoryEntryInThisTrackSector(entryTrack, entrySector);
-            if (useEntryIndex == null)
+            if (useEntryIndex == null)          // All 8 entries in this track sector are used.
             {
-                // All 8 entries in this track sector are used.
-                // Do need to create another track sector?
+                // Do need to create another track sector or move to the next track:sector?
                 int directoryEntryOffset = getOffsetForTrackSector(entryTrack, entrySector);
                 byte nextTrack = rawBytes[directoryEntryOffset];
-                if (nextTrack == 0)        // Is the next directory track link set to 0
+                if (nextTrack == 0)        // Is the next directory track link set to 0, if so we need to allocate another directory sector.
                 {
                     int nextSector = getNextSectorUsingInterleave(entryTrack, entrySector, directorySectorInterleave);
 
@@ -210,7 +208,7 @@ public abstract class Disk
                             }
                         }
 
-                        // We still didn't find anything?  Let's now scan sequentially in cased to interleave algorithm skipped one
+                        // We still didn't find anything?  Let's now scan sequentially in cased the interleave algorithm skipped one
                         if (nextSector == -1)
                             for(int n=directoryStartSector; n<=directoryEndSector; n++)
                             {
