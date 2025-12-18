@@ -160,7 +160,7 @@ public abstract class Disk
                 if (n + 1 == sectorsNeeded)       // This is the last sector
                 {
                     rawBytes[diskOffset++] = 0;
-                    rawBytes[diskOffset++] = (byte) bytesInLastSector;
+                    rawBytes[diskOffset++] = (byte) (bytesInLastSector + 1);
                     for (int x = 0; x < bytesInLastSector; x++)
                         rawBytes[diskOffset++] = binaryFile.rawData()[binaryFileOffset++];
                 }

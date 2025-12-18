@@ -9,24 +9,22 @@ import kickass.plugins.interf.general.IMemoryBlock;
 import kickass.plugins.interf.general.IParameterMap;
 
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 /**
  * .disk [filename="something.d64" name="empty" id="cz" driveType="1541" (1541, 1571, 1581)
  */
-public final class CBMDiskWriter implements IDiskWriter
+public final class MultiDiskWriter implements IDiskWriter
 {
     private static final List<String> possibleDriveTypes = List.of("1541", "1571", "1581");
     private static final List<String> possibleFileTypes  = List.of("del", "seq", "prg", "usr", "rel");
     private final DiskWriterDefinition m_definition;
 
-    public CBMDiskWriter()
+    public MultiDiskWriter()
     {
         m_definition = new DiskWriterDefinition();
-        m_definition.setName("zinn");
+        m_definition.setName("multidisk");
 
         m_definition.setAllDiskParameters(Set.of("filename", "name", "id", "driveType"));
         m_definition.setNonOptionalDiskParameters(Set.of("filename"));

@@ -80,19 +80,6 @@ public final class ByteLogic
         return new BinaryFile(storeStartAddress ? lowestMemoryAddress : null, binaryToWrite);
     }
 
-    public static String convertFileTypeToString(int fileType)
-    {
-        String fileTypeString = "";
-        if ( ((byte) fileType & 0b00001111) == 0) fileTypeString = "DEL";
-        if ( ((byte) fileType & 0b00001111) == 1) fileTypeString = "SEQ";
-        if ( ((byte) fileType & 0b00001111) == 2) fileTypeString = "PRG";
-        if ( ((byte) fileType & 0b00001111) == 3) fileTypeString = "USR";
-        if ( ((byte) fileType & 0b00001111) == 4) fileTypeString = "REL";
-        if ( ((byte) fileType & 0b01000000) != 0) fileTypeString += "<";        // Software Locked
-
-        return fileTypeString;
-    }
-
     /**
      * Bits 0-3	File Type (DEL, SEQ, PRG etc.)
      *        4	Unused

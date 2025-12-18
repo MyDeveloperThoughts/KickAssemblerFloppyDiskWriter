@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This is just test code to look at the contents of a disk at a low level so I can compare it to ones created outside of this library.
+ */
 public class TestMain
 {
     static void main(String[] args) throws Exception
@@ -56,7 +59,7 @@ public class TestMain
                 int blocksUsed = fileSizeLo + (fileSizeHi * 256);
 
                 DirectoryEntry n = new DirectoryEntry(track, sector, entry,
-                        nextDirectoryTrack, nextDirectorySector, fileType, ByteLogic.convertFileTypeToString(fileType), fileTrack, fileSector, fileName,
+                        nextDirectoryTrack, nextDirectorySector, fileType, convertFileTypeToString(fileType), fileTrack, fileSector, fileName,
                         relFileTrack, relFileSector, relRecordLength, blocksUsed);
                 entries.add(n);
             }
@@ -159,6 +162,19 @@ public class TestMain
              System.out.println("Track " + nextTrack + " Sector " + nextSector);
          }
      }
+
+    public static String convertFileTypeToString(int fileType)
+    {
+        String fileTypeString = "";
+        if ( ((byte) fileType & 0b00001111) == 0) fileTypeString = "DEL";
+        if ( ((byte) fileType & 0b00001111) == 1) fileTypeString = "SEQ";
+        if ( ((byte) fileType & 0b00001111) == 2) fileTypeString = "PRG";
+        if ( ((byte) fileType & 0b00001111) == 3) fileTypeString = "USR";
+        if ( ((byte) fileType & 0b00001111) == 4) fileTypeString = "REL";
+        if ( ((byte) fileType & 0b01000000) != 0) fileTypeString += "<";        // Software Locked
+
+        return fileTypeString;
+    }
 
 
 }
