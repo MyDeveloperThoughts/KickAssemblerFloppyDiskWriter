@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.mydevthoughts</groupId>
+    <groupId>zinn.plugins</groupId>
     <artifactId>KickAssPlugins</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -21,9 +21,8 @@
             <artifactId>KickAssembler</artifactId>
             <version>5.25</version>
             <scope>system</scope>
-            <systemPath>c:/project/KickAssemblerFloppyDiskWriter/KickAssembler/KickAss.jar</systemPath>
+            <systemPath>${project.basedir}/KickAssembler/KickAss.jar</systemPath>
         </dependency>
-
 
         <dependency>
             <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
@@ -41,16 +40,11 @@
             <version>3.27.6</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>6.0.0</version>
-            <scope>test</scope>
-        </dependency>
 
     </dependencies>
 
     <build>
+        <finalName>multidiskPlugin</finalName>
         <plugins>
             <plugin>
                 <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
