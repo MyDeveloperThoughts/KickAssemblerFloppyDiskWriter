@@ -115,6 +115,7 @@ public final class Disk1581 extends Disk
         if (sector <=15) sectorOffset = 1;      // sector 8-15 is in offset 1
         if (sector <=7)  sectorOffset = 0;      // sector 0-7 is in offset 0
 
+        if (track > 40) track -= 40;
         int sectorCountIndex = testOffset + ((track - 1 ) * 6) + sectorOffset;
         int bamIndex = sectorCountIndex + 1;
 
