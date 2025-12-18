@@ -12,7 +12,10 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
 
-
+/**
+ * Written by Chris Zinn.  A license has not been assigned to this yet.
+ * This is a work in progress.
+ */
 public final class MultiDiskWriter implements IDiskWriter
 {
     public static final String VERSION = "0.5α";
