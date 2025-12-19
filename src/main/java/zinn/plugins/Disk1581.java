@@ -36,8 +36,6 @@ public final class Disk1581 extends Disk
     @Override
     public void formatDisk()
     {
-        // 1541 - Prepare a BAM (Block Availability Map) on Track 40 Sector 0
-        // Bytes 0 - 3 is the BAM Header
         int diskOffset = getOffsetForTrackSector(40,0);         // The BAM (Block Availability Map) 399360 / $61800
         rawBytes[diskOffset++] =    (byte) 40;                  // First Directory entry is on Track 40
         rawBytes[diskOffset++] =    (byte) 3;                   //                             Sector 3
@@ -53,7 +51,7 @@ public final class Disk1581 extends Disk
         diskOffset = ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createShiftSpacePaddedString("", 2),    diskOffset);     // 4 bytes $A0
                      ByteLogic.copyIntoRawBytes(rawBytes, ByteLogic.createBytesOfChar((byte) 0,  227),      diskOffset);     // 227 bytes of 0 to fill out the sector
 
-        for(int bamSector=1; bamSector<=2; bamSector++)   // 2 Tracks of this
+        for(int bamSector=1; bamSector<=2; bamSector++)   // 2 Tracks of BAM (Block Availability Map)
         {
             // 4 bytes per track. For each track, these bytes look like this:
             // Byte 1: $15 / 21      Count of free sectors on the track
@@ -93,9 +91,9 @@ public final class Disk1581 extends Disk
             }
         }
 
-        diskOffset = getOffsetForTrackSector(40, 3);        // The disk directory sector
-        rawBytes[diskOffset++] = 0;             // No next track
-        rawBytes[diskOffset] = (byte) 255;    // No next sector
+        diskOffset = getOffsetForTrackSector(40, 3);    // The disk directory sector
+        rawBytes[diskOffset++] = 0;                     // No next track
+        rawBytes[diskOffset] = (byte) 255;              // No next sector
 
         markTrackSector(40,0,true);     // Disk Header
         markTrackSector(40,1,true);     // BAM Side 1
@@ -109,7 +107,7 @@ public final class Disk1581 extends Disk
         int testOffset = track <=40 ? getOffsetForTrackSector(40,1) : getOffsetForTrackSector(40,2);
         testOffset+=16;     // Skip past the header stuff
 
-        int sectorOffset = 4;      // sector 32-40 is in offset 4
+        int sectorOffset = 4;                   // sector 32-40 is in offset 4
         if (sector <=31) sectorOffset = 3;      // sector 24-31 is in offset 3
         if (sector <=23) sectorOffset = 2;      // sector 16-23 is in offset 2
         if (sector <=15) sectorOffset = 1;      // sector 8-15 is in offset 1
@@ -122,7 +120,7 @@ public final class Disk1581 extends Disk
         byte existingByte = rawBytes[bamIndex];
         byte maskingBit = ByteLogic.getSectorBAMMaskingBit(sector);
 
-        if (inUse) // Force that bit to 0
+        if (inUse)  // Force that bit to 0
         {
             maskingBit = (byte) (maskingBit ^ (byte) 255);
             rawBytes[bamIndex] = (byte) (existingByte & maskingBit);
@@ -147,7 +145,7 @@ public final class Disk1581 extends Disk
         int testOffset = track <=40 ? getOffsetForTrackSector(40,1) : getOffsetForTrackSector(40,2);
         testOffset+=16;     // Skip past the header stuff
 
-        int sectorOffset = 4;      // sector 32-40 is in offset 1
+        int sectorOffset = 4;                   // sector 32-40 is in offset 1
         if (sector <=31) sectorOffset = 3;      // sector 24-31 is in offset 4
         if (sector <=23) sectorOffset = 2;      // sector 16-23 is in offset 3
         if (sector <=15) sectorOffset = 1;      // sector 8-15 is in offset 2
