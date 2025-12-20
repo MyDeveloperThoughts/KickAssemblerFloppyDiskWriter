@@ -1,7 +1,6 @@
-.segmentdef CODE
-.segment CODE
+.segment CODE []
 BasicUpstart2(go)
-     * = * "Main Program"
+.memblock "Main Program"
 go:
      lda #$02
      sta $d020
