@@ -2,8 +2,12 @@
 A Disk Writer plugin for Kick Assembler that supports the 1541, 1571 and 1581 disk formats.   d64, d71 and 81.  
 Written by Chris Zinn.  
 
-Download and unzip the multiDiskPlugin.zip file into the plugins folder of KickAssembler.  
+**Acquiring and installing the plugin**  
+[Download the latest version of the plugin .zip file here](https://github.com/MyDeveloperThoughts/KickAssemblerFloppyDiskWriter/blob/main/multiDiskPlugin.zip)  
+Click on the Download raw file button  
+Unzip the contents of the multiDiskPlugin.zip file into the plugins folder of KickAssembler.  
 
+**Using the MultiDisk Writer plugin**  
 This plugin is designed to be as compatible with the existing .disk and .file parameters as possible.  
 This is an example usage of the .disk parameter that creates a 1541 disk image placing the assembled code in the CODE segment into a file called HELLO WORLD. 
 ```
@@ -34,13 +38,16 @@ Just add the option **multidisk** to use this plugin to generate the disk image 
 ```
 
 
-
-**Unsupported Option**  
-The following options are **not** supported in this plugin:  
+**Unsupported Options**  
+The following .disk options are **not** supported in this plugin:  
 * dontSplitFilesOverDir    
 * format
 * interleave  
 * storeFilesInDir  
+
+**Source Code**  
+The source code for this plugin can be found here:  
+https://github.com/MyDeveloperThoughts/KickAssemblerFloppyDiskWriter
 
 [DEVNOTES](DEVNOTES.md)  
 These are some quick notes if you wish to contribute or help test this project. 

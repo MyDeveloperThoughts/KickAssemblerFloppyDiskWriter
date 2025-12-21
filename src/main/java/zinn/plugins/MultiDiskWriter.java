@@ -43,7 +43,9 @@ public final class MultiDiskWriter implements IDiskWriter
         if (!productInformationDisplayed)
         {
             engine.printNow(String.format("MultiDisk Writer Plugin v%s %s", VERSION, VERSION_DATE + " initialized."));
-            engine.printNow("Get the latest version here: https://github.com/MyDeveloperThoughts/KickAssemblerFloppyDiskWriter");
+            engine.printNow("Get the latest version here: https://github.com/MyDeveloperThoughts/KickAssemblerFloppyDiskWriter/blob/main/multiDiskPlugin.zip");
+            engine.printNow("Documentation Here         : https://github.com/MyDeveloperThoughts/KickAssemblerFloppyDiskWriter/blob/main/README.md");
+            engine.printNow("GitHub Repo                : https://github.com/MyDeveloperThoughts/KickAssemblerFloppyDiskWriter");
 
             productInformationDisplayed = true;
         }
