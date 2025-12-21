@@ -22,7 +22,7 @@ public class TestMain
         byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\test.d64"));
 //        byte[] entireDisk = Files.readAllBytes(Path.of("c:\\project\\KickAssemblerFloppyDiskWriter\\output\\broadSides.d64"));
 
-        Disk disk = Disk.createFormattedDisk("test.d64", "stuff", "cz");
+        Disk disk = Disk.createFormattedDisk("test.d64", "stuff", "cz", "1541");
         disk.rawBytes = entireDisk;
         byte[] rawBytes = disk.rawBytes;
 

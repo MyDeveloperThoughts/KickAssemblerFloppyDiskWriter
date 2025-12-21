@@ -37,13 +37,13 @@ public abstract class Disk
         return disk;
     }
 
-    public static Disk createFormattedDisk(String fileName, String name, String id)
+    public static String determineDriveTypeFromFilename(String fileName)
     {
         String driveType = "1541";
         if (fileName.toLowerCase().endsWith(".d71")) driveType = "1571";
         if (fileName.toLowerCase().endsWith(".d81")) driveType = "1581";
 
-        return createFormattedDisk(fileName, name, id, driveType);
+        return driveType;
     }
 
     public abstract void formatDisk();
